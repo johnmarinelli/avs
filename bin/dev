@@ -1,0 +1,27 @@
+#!/bin/sh
+
+SESSION_NAME="carnatica"
+
+tmux has-session -t ${SESSION_NAME}
+
+if [ $? != 0 ]
+then
+  # create session
+  tmux new-session -s ${SESSION_NAME} -n MONITOR -d
+
+  # start dev server
+  tmux send-keys 'npm run start' C-m
+
+  # split vertically (-)
+  tmux split-window -v
+
+  tmux select-pane -t 0
+
+  tmux split-window -h
+
+  tmux send-keys 'npm run test' C-m
+
+  tmux select-pane -t 2
+fi
+tmux attach -t ${SESSION_NAME}
+

@@ -1,0 +1,25 @@
+{
+  "name": "carnatica",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^15.6.1",
+    "react-display-name": "^0.2.3",
+    "react-dom": "^15.6.1",
+    "react-redux": "^5.0.6",
+    "react-scripts": "1.0.17",
+    "react-three": "^0.9.7",
+    "react-three-renderer": "^3.2.3",
+    "redux": "^3.7.2",
+    "three": "^0.86.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "stats-js": "^1.0.0-alpha1"
+  }
+}
