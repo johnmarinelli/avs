@@ -120,14 +120,30 @@ const withDraggable = (WrappedComponent) => {
     };
 
     render () {
-      const { onDragStart, onDragEnd, ...passThroughProps } = this.props;
-      const { position } = this.state;
-      passThroughProps.position = position;
+      const { 
+        onDragStart, 
+        onDragEnd, 
+        ...passThroughProps 
+      } = this.props;
+      
+      const { 
+        position, 
+        pressed 
+      } = this.state;
+
+      const childProps = Object.assign(
+        {}, 
+        passThroughProps, 
+        { 
+          position, 
+          pressed 
+        }
+      );
       
       return (
         <WrappedComponent
           onMouseDown={this._onMouseDown}
-          {...passThroughProps} />
+          {...childProps} />
       );
     }
 
@@ -141,6 +157,10 @@ const withDraggable = (WrappedComponent) => {
     mouseInput: PropTypes.instanceOf(MouseInput),
     onDragStart: PropTypes.func.isRequired,
     onDragEnd: PropTypes.func.isRequired
+  };
+
+  WithDraggable.defaultProps = {
+    pressedColor: 0x0000ff
   };
 
   WithDraggable.displayName = 

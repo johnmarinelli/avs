@@ -1,5 +1,8 @@
 import React from 'react';
-import DraggableSphere from './DraggableSphere';
+import Sphere from './Sphere';
+import WithHoverable from './Hoverable';
+import WithDraggable from './Draggable';
+import Compose from './Compose';
 import * as THREE from 'three';
 
 import PropTypes from 'prop-types';
@@ -41,6 +44,11 @@ class AllSpheres extends React.PureComponent {
 
     this._hoveredSpheres = 0;
     this._draggingSpheres = 0;
+
+    this.CarnaticaSphere = Compose(
+      WithDraggable, 
+      WithHoverable
+    )(Sphere);
   }
 
   componentDidMount() {
@@ -110,6 +118,10 @@ class AllSpheres extends React.PureComponent {
       cursor,
     } = this.props;
 
+    const {
+      CarnaticaSphere
+    } = this;
+
     return this.sphereGeometries.map((sphereGeometry, index) => {
       const onCreate = this._onSphereCreate.bind(this, index);
       const {
@@ -117,12 +129,20 @@ class AllSpheres extends React.PureComponent {
         radius
       } = sphereGeometry;
 
+      const sphereGeometryElement = 
+        <sphereGeometry
+          widthSegments={32}
+          heightSegments={32}
+          radius={radius} />;
+
       return (
-        <DraggableSphere
+        <CarnaticaSphere
           key={index}
 
           mouseInput={mouseInput}
           camera={camera}
+
+          geometry={sphereGeometryElement}
 
           position={position}
           radius={radius}
