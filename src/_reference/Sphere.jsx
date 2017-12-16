@@ -19,7 +19,8 @@ class Sphere extends React.PureComponent {
       1
     );
 
-    this.color = new THREE.Color(Math.random() * 0xffffff);
+    //this.color = new THREE.Color(Math.random() * 0xffffff);
+    this.color = props.color;
 
     const hsl = this.color.getHSL();
 
@@ -70,16 +71,9 @@ class Sphere extends React.PureComponent {
       onMouseEnter,
       onMouseLeave,
       hoverHighlightMesh,
-      geometry
+      geometry,
+      mesh
     } = this.props;
-
-    /*
-    const geometry = 
-      <sphereGeometry
-        widthSegments={32}
-        heightSegments={32}
-        radius={radius} />;
-    */
 
     let color = this.color;
 
@@ -95,6 +89,7 @@ class Sphere extends React.PureComponent {
         position={position}
         rotation={rotation}
         scale={scale}>
+        {/*
         <mesh
           castShadow
           receiveShadow
@@ -108,6 +103,8 @@ class Sphere extends React.PureComponent {
           <meshLambertMaterial 
             color={color} />
         </mesh>
+        */}
+        {mesh}
         {hoverHighlightMesh}
       </group>
         

@@ -11,7 +11,7 @@ class App extends React.PureComponent {
 
   constructor (props, context) {
     super(props, context);
-    const cameraPosition = new THREE.Vector3(0, 0, 1000);
+    const cameraPosition = new THREE.Vector3(0, 50, 100);
     const cameraRotation = new THREE.Euler();
 
     this.state = {
@@ -149,7 +149,7 @@ class App extends React.PureComponent {
   render() {
     const {
       width,
-      height 
+      height
     } = this.props;
 
     const {
@@ -165,7 +165,7 @@ class App extends React.PureComponent {
 
     if (dragging) {
       style.cursor = 'move';
-    } 
+    }
     else if (hovering) {
       style.cursor = 'pointer';
     }
@@ -208,7 +208,7 @@ class App extends React.PureComponent {
               aspect={width / height}
               near={1}
               far={10000}
-              position={cameraPosition} 
+              position={cameraPosition}
               rotation={cameraRotation} />
             <ambientLight
               color={0x505050} />

@@ -20,7 +20,7 @@ const withHoverable = (WrappedComponent) => {
           {geometry}
           <materialResource
             resourceId="highlightMaterial" />
-        </mesh> 
+        </mesh>
       );
     }
 
@@ -49,24 +49,24 @@ const withHoverable = (WrappedComponent) => {
     };
 
     render () {
-      const { 
-        onMouseEnter, 
-        onMouseLeave, 
+      const {
+        onMouseEnter,
+        onMouseLeave,
         ...passThroughProps,
       } = this.props;
       const { hovered } = this.state;
       const dragging = this.props.cursor.dragging;
 
       const hoverHighlight = (hovered && !dragging);
-      const hoverHighlightMesh = hoverHighlight ? 
+      const hoverHighlightMesh = hoverHighlight ?
         this.hoverHighlightMesh :
         null;
 
       const childProps = Object.assign(
-        {}, 
-        passThroughProps, 
-        { 
-          hovered ,
+        {},
+        passThroughProps,
+        {
+          hovered,
           hoverHighlightMesh
         });
 
@@ -85,8 +85,8 @@ const withHoverable = (WrappedComponent) => {
     geometry: PropTypes.element,
     cursor: PropTypes.any
   };
-  
-  WithHoverable.displayName = 
+
+  WithHoverable.displayName =
     `WithHoverable (${getDisplayName(WrappedComponent)})`;
 
   return WithHoverable;

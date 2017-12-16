@@ -52,7 +52,7 @@ const withDraggable = (WrappedComponent) => {
 
       const intersection = dragPlane.intersectLine(
         new THREE.Line3(
-          ray.origin, 
+          ray.origin,
           ray.origin.clone().add(ray.direction.clone().multiplyScalar(10000))
         )
       );
@@ -78,7 +78,7 @@ const withDraggable = (WrappedComponent) => {
       } = this.props;
 
       dragPlane.setFromNormalAndCoplanarPoint(
-        backVector.clone().applyQuaternion(camera.quaternion), 
+        backVector.clone().applyQuaternion(camera.quaternion),
         intersection.point
       );
 
@@ -107,7 +107,7 @@ const withDraggable = (WrappedComponent) => {
 
       const intersection = dragPlane.intersectLine(
         new THREE.Line3(
-          ray.origin, 
+          ray.origin,
           ray.origin.clone().add(ray.direction.clone().multiplyScalar(10000))
         )
       );
@@ -120,26 +120,26 @@ const withDraggable = (WrappedComponent) => {
     };
 
     render () {
-      const { 
-        onDragStart, 
-        onDragEnd, 
-        ...passThroughProps 
+      const {
+        onDragStart,
+        onDragEnd,
+        ...passThroughProps
       } = this.props;
-      
-      const { 
-        position, 
-        pressed 
+
+      const {
+        position,
+        pressed
       } = this.state;
 
       const childProps = Object.assign(
-        {}, 
-        passThroughProps, 
-        { 
-          position, 
-          pressed 
+        {},
+        passThroughProps,
+        {
+          position,
+          pressed
         }
       );
-      
+
       return (
         <WrappedComponent
           onMouseDown={this._onMouseDown}
@@ -156,14 +156,15 @@ const withDraggable = (WrappedComponent) => {
   WithDraggable.PropTypes = {
     mouseInput: PropTypes.instanceOf(MouseInput),
     onDragStart: PropTypes.func.isRequired,
-    onDragEnd: PropTypes.func.isRequired
+    onDragEnd: PropTypes.func.isRequired,
+    pressedColor: PropTypes.any
   };
 
   WithDraggable.defaultProps = {
-    pressedColor: 0x0000ff
+    pressedColor: 0x00ff00
   };
 
-  WithDraggable.displayName = 
+  WithDraggable.displayName =
    `WithDraggable (${getDisplayName(WrappedComponent)})`;
 
   return WithDraggable;

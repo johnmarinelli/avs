@@ -6,6 +6,13 @@ import getDisplayName from 'react-display-name';
 const withRenderable = (WrappedComponent) => {
   class WithRenderable extends React.PureComponent {
     render () {
+      const {
+        group,
+        mesh,
+        geometry,
+        hoverHighlightGeometry
+      } = this.props;
+
       return (
         <group
           position={position}
@@ -21,7 +28,7 @@ const withRenderable = (WrappedComponent) => {
 
             ref={this._ref}>
             {geometry}
-            <meshLambertMaterial 
+            <meshLambertMaterial
               color={color} />
           </mesh>
           {hoverHighlightMesh}
@@ -33,7 +40,7 @@ const withRenderable = (WrappedComponent) => {
   WithRenderable.PropTypes = {
   };
 
-  WithRenderable.displayName = 
+  WithRenderable.displayName =
    `WithRenderable (${getDisplayName(WrappedComponent)})`;
 
   return WithRenderable;

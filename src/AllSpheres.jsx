@@ -1,7 +1,8 @@
 import React from 'react';
-import Sphere from './Sphere';
 import WithHoverable from './Hoverable';
 import WithDraggable from './Draggable';
+import Group from './Group';
+import Mesh from './Mesh';
 import Compose from './Compose';
 import * as THREE from 'three';
 
@@ -26,18 +27,26 @@ class AllSpheres extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
 
-    const sphereGeometries = [{
-      position: new THREE.Vector3(
-        0,
-        0,
-        0
-      ),
-      radius: 500
-    }];
-    sphereGeometries.length = 1;
+    const numSpheres = 10;
 
-    const spheres = [];
-    spheres.length = sphereGeometries.length;
+    let sphereGeometries = new Array(numSpheres);
+
+    for (let i = 0; i < 10; ++i) {
+      const position = new THREE.Vector3(
+        Math.random() * 100.0,
+        Math.random() * 100.0,
+        Math.random() * 50.0
+      );
+
+      const radius = Math.random() * 10.0;
+
+      sphereGeometries[i] = {
+        position,
+        radius,
+      };
+    };
+
+    const spheres = new Array(numSpheres);
     this.spheres = spheres;
 
     this.sphereGeometries = sphereGeometries;
@@ -45,10 +54,6 @@ class AllSpheres extends React.PureComponent {
     this._hoveredSpheres = 0;
     this._draggingSpheres = 0;
 
-    this.CarnaticaSphere = Compose(
-      WithDraggable, 
-      WithHoverable
-    )(Sphere);
   }
 
   componentDidMount() {
@@ -118,10 +123,6 @@ class AllSpheres extends React.PureComponent {
       cursor,
     } = this.props;
 
-    const {
-      CarnaticaSphere
-    } = this;
-
     return this.sphereGeometries.map((sphereGeometry, index) => {
       const onCreate = this._onSphereCreate.bind(this, index);
       const {
@@ -129,32 +130,52 @@ class AllSpheres extends React.PureComponent {
         radius
       } = sphereGeometry;
 
-      const sphereGeometryElement = 
+      const rotation = new THREE.Euler(0, 0, 0);
+      const scale = new THREE.Vector3(1, 1, 1);
+
+      const color= new THREE.Color(Math.random() * 0xffffff);
+
+      const sphereGeometryElement =
         <sphereGeometry
           widthSegments={32}
           heightSegments={32}
           radius={radius} />;
 
-      return (
-        <CarnaticaSphere
-          key={index}
+      const sphereMaterialElement =
+          <meshLambertMaterial
+            color={color} />;
 
-          mouseInput={mouseInput}
-          camera={camera}
-
-          geometry={sphereGeometryElement}
-
-          position={position}
-          radius={radius}
+      const sphereMeshElement =
+        <Mesh
           onCreate={onCreate}
+          material={sphereMaterialElement}
+          geometry={sphereGeometryElement} />;
+
+      const HoverableDraggableMesh = Compose(
+        WithDraggable,
+        WithHoverable
+      )(Mesh);
+
+      const sphereGroup =
+        <HoverableDraggableMesh
+          key={index}
+          onCreate={onCreate}
+          material={sphereMaterialElement}
+          geometry={sphereGeometryElement}
           onMouseEnter={this._onSphereMouseEnter}
           onMouseLeave={this._onSphereMouseLeave}
           onDragStart={this._onSphereDragStart}
           onDragEnd={this._onSphereDragEnd}
 
           cursor={cursor}
-        />
-      );
+          camera={camera}
+          mouseInput={mouseInput}
+
+          scale={scale}
+          rotation={rotation}
+          position={position}>
+        </HoverableDraggableMesh>;
+      return sphereGroup;
     });
   }
 
