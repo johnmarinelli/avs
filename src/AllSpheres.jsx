@@ -1,8 +1,6 @@
 import React from 'react';
-import WithHoverable from './Hoverable';
-import WithDraggable from './Draggable';
-import Group from './Group';
-import Mesh from './Mesh';
+import { withHoverable, withDraggable  } from './enhancers';
+import Entity from './Entity';
 import Compose from './Compose';
 import * as THREE from 'three';
 
@@ -27,11 +25,11 @@ class AllSpheres extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
 
-    const numSpheres = 10;
+    const numSpheres = 1;
 
     let sphereGeometries = new Array(numSpheres);
 
-    for (let i = 0; i < 10; ++i) {
+    for (let i = 0; i < numSpheres; ++i) {
       const position = new THREE.Vector3(
         Math.random() * 100.0,
         Math.random() * 100.0,
@@ -116,6 +114,33 @@ class AllSpheres extends React.PureComponent {
     }
   };
 
+  _pyramid = () => {
+    const position = new THREE.Vector3(0, 0, 0);
+    const scale = new THREE.Vector3(1, 1, 1);
+    const rotation = new THREE.Euler(0, 0, 0);
+
+    const geometry =
+      <cylinderGeometry
+        radiusTop={1}
+        radiusBottom={10}
+        height={10}
+        radiusSegments={4} />;
+
+      const material =
+        <meshLambertMaterial
+          color={0xff00ff} />;
+
+    return (
+      <Entity
+        material={material}
+        geometry={geometry}
+
+        scale={scale}
+        rotation={rotation}
+        position={position} />
+    );
+  };
+
   renderSpheres () {
     const {
       mouseInput,
@@ -145,19 +170,13 @@ class AllSpheres extends React.PureComponent {
           <meshLambertMaterial
             color={color} />;
 
-      const sphereMeshElement =
-        <Mesh
-          onCreate={onCreate}
-          material={sphereMaterialElement}
-          geometry={sphereGeometryElement} />;
+      const HoverableDraggableEntity = Compose(
+        withDraggable,
+        withHoverable
+      )(Entity);
 
-      const HoverableDraggableMesh = Compose(
-        WithDraggable,
-        WithHoverable
-      )(Mesh);
-
-      const sphereGroup =
-        <HoverableDraggableMesh
+      const sphere =
+        <HoverableDraggableEntity
           key={index}
           onCreate={onCreate}
           material={sphereMaterialElement}
@@ -173,17 +192,19 @@ class AllSpheres extends React.PureComponent {
 
           scale={scale}
           rotation={rotation}
-          position={position}>
-        </HoverableDraggableMesh>;
-      return sphereGroup;
+          position={position} />;
+
+      return sphere;
     });
   }
 
   render() {
     const spheres = this.renderSpheres();
+    const pyramid = this._pyramid();
 
     return (
       <group>
+        {pyramid}
         {spheres}
       </group>
     );

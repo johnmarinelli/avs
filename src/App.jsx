@@ -4,7 +4,7 @@ import React3 from 'react-three-renderer';
 import * as THREE from 'three';
 import MouseInput from './services/mouse-input';
 import AllSpheres from './AllSpheres';
-import TrackballControls from './trackball';
+import TrackballControls from './services/trackball';
 import Stats from 'stats-js';
 
 class App extends React.PureComponent {

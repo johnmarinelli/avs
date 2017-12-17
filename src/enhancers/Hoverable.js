@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as THREE from 'three';
 import getDisplayName from 'react-display-name';
 
-import MouseInput from './services/mouse-input';
+import MouseInput from '../services/mouse-input';
 
 const withHoverable = (WrappedComponent) => {
   class WithHoverable extends React.PureComponent {
@@ -66,14 +66,17 @@ const withHoverable = (WrappedComponent) => {
         {},
         passThroughProps,
         {
-          hovered,
-          hoverHighlightMesh
-        });
+          withHoverable: {
+            onMouseEnter: this._onMouseEnter,
+            onMouseLeave: this._onMouseLeave,
+            hovered,
+            hoverHighlightMesh
+          }
+        }
+      );
 
       return (
         <WrappedComponent
-          onMouseEnter={this._onMouseEnter}
-          onMouseLeave={this._onMouseLeave}
           {...childProps} />
       );
     }

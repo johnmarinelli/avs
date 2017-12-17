@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as THREE from 'three';
 
-class Mesh extends React.PureComponent {
+class Entity extends React.PureComponent {
 
   _ref = (mesh) => {
     const {
@@ -22,7 +22,9 @@ class Mesh extends React.PureComponent {
       position,
       rotation,
       scale,
-      hoverHighlightMesh
+
+      withHoverable = {},
+      withDraggable = {}
     } = this.props;
 
     return (
@@ -34,27 +36,34 @@ class Mesh extends React.PureComponent {
           castShadow
           receiveShadow
 
-          onMouseEnter={onMouseEnter}
-          onMouseDown={onMouseDown}
-          onMouseLeave={onMouseLeave}
+          onMouseEnter={withHoverable.onMouseEnter}
+          onMouseDown={withDraggable.onMouseDown}
+          onMouseLeave={withHoverable.onMouseLeave}
 
           ref={this._ref}>
           {geometry}
           {material}
         </mesh>
-        {hoverHighlightMesh}
+        {withHoverable.hoverHighlightMesh}
       </group>
     );
   }
 }
 
-Mesh.PropTypes = {
+Entity.PropTypes = {
   geometry: PropTypes.element.isRequired,
   material: PropTypes.element.isRequired,
+  position: PropTypes.instanceOf(THREE.Vector3).isRequired,
+  scale: PropTypes.instanceOf(THREE.Vector3).isRequired,
+  rotation: PropTypes.instanceOf(THREE.Euler).isRequired,
   onMouseEnter: PropTypes.func,
   onMouseDown: PropTypes.func,
   onMouseLeave: PropTypes.func,
   onCreate: PropTypes.func
 };
 
-export default Mesh;
+Entity.defaultProps = {
+  onCreate: () => {}
+}
+
+export default Entity;

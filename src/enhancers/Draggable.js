@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as THREE from 'three';
 import getDisplayName from 'react-display-name';
 
-import MouseInput from './services/mouse-input';
+import MouseInput from '../services/mouse-input';
 
 // shared plane for dragging purposes
 // it's good to share because you can drag only one cube at a time
@@ -136,13 +136,15 @@ const withDraggable = (WrappedComponent) => {
         passThroughProps,
         {
           position,
-          pressed
+          withDraggable: {
+            pressed,
+            onMouseDown: this._onMouseDown
+          }
         }
       );
 
       return (
         <WrappedComponent
-          onMouseDown={this._onMouseDown}
           {...childProps} />
       );
     }
