@@ -8,12 +8,12 @@ import PropTypes from 'prop-types';
 
 import MouseInput from './services/mouse-input';
 
-class AllSpheres extends React.PureComponent {
+class AllObjects extends React.PureComponent {
   static propTypes = {
     mouseInput: PropTypes.instanceOf(MouseInput),
     camera: PropTypes.instanceOf(THREE.PerspectiveCamera),
 
-    onSpheresMounted: PropTypes.func.isRequired,
+    onObjectsMounted: PropTypes.func.isRequired,
     onHoverStart: PropTypes.func.isRequired,
     onHoverEnd: PropTypes.func.isRequired,
     onDragStart: PropTypes.func.isRequired,
@@ -25,11 +25,11 @@ class AllSpheres extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
 
-    const numSpheres = 1;
+    const numObjects = 1;
 
-    let sphereGeometries = new Array(numSpheres);
+    let sphereGeometries = new Array(numObjects);
 
-    for (let i = 0; i < numSpheres; ++i) {
+    for (let i = 0; i < numObjects; ++i) {
       const position = new THREE.Vector3(
         Math.random() * 100.0,
         Math.random() * 100.0,
@@ -44,30 +44,29 @@ class AllSpheres extends React.PureComponent {
       };
     };
 
-    const spheres = new Array(numSpheres);
-    this.spheres = spheres;
+    const objects = new Array(numObjects);
+    this.objects = objects;
 
     this.sphereGeometries = sphereGeometries;
 
-    this._hoveredSpheres = 0;
-    this._draggingSpheres = 0;
-
+    this._hoveredObjects = 0;
+    this._draggingObjects = 0;
   }
 
   componentDidMount() {
     const {
-      onSpheresMounted,
+      onObjectsMounted,
     } = this.props;
 
-    onSpheresMounted(this.spheres);
+    onObjectsMounted(this.objects);
   }
 
   _onSphereCreate = (index, sphere) => {
-    this.spheres[index] = sphere;
+    this.objects[index] = sphere;
   };
 
   _onSphereMouseEnter = () => {
-    if (this._hoveredSpheres === 0) {
+    if (this._hoveredObjects === 0) {
       const {
         onHoverStart,
       } = this.props;
@@ -75,13 +74,13 @@ class AllSpheres extends React.PureComponent {
       onHoverStart();
     }
 
-    this._hoveredSpheres++;
+    this._hoveredObjects++;
   };
 
   _onSphereMouseLeave = () => {
-    this._hoveredSpheres--;
+    this._hoveredObjects--;
 
-    if (this._hoveredSpheres === 0) {
+    if (this._hoveredObjects === 0) {
       const {
         onHoverEnd,
       } = this.props;
@@ -91,7 +90,7 @@ class AllSpheres extends React.PureComponent {
   };
 
   _onSphereDragStart = () => {
-    if (this._draggingSpheres === 0) {
+    if (this._draggingObjects === 0) {
       const {
         onDragStart,
       } = this.props;
@@ -99,13 +98,13 @@ class AllSpheres extends React.PureComponent {
       onDragStart();
     }
 
-    this._draggingSpheres++;
+    this._draggingObjects++;
   };
 
   _onSphereDragEnd = () => {
-    this._draggingSpheres--;
+    this._draggingObjects--;
 
-    if (this._draggingSpheres === 0) {
+    if (this._draggingObjects === 0) {
       const {
         onDragEnd,
       } = this.props;
@@ -124,7 +123,7 @@ class AllSpheres extends React.PureComponent {
         radiusTop={1}
         radiusBottom={10}
         height={10}
-        radiusSegments={4} />;
+        radialSegments={4} />;
 
       const material =
         <meshLambertMaterial
@@ -141,7 +140,7 @@ class AllSpheres extends React.PureComponent {
     );
   };
 
-  renderSpheres () {
+  renderObjects () {
     const {
       mouseInput,
       camera,
@@ -198,17 +197,20 @@ class AllSpheres extends React.PureComponent {
     });
   }
 
+  _update = (delta) => {
+  }
+
   render() {
-    const spheres = this.renderSpheres();
+    const objects = this.renderObjects();
     const pyramid = this._pyramid();
 
     return (
       <group>
         {pyramid}
-        {spheres}
+        {objects}
       </group>
     );
   }
 }
 
-export default AllSpheres;
+export default AllObjects;

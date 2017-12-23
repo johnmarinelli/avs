@@ -12,6 +12,10 @@ class Entity extends React.PureComponent {
     onCreate(mesh);
   };
 
+  _update = (delta) => {
+    console.log(delta);
+  }
+
   render () {
     const {
       geometry,
