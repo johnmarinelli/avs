@@ -1,2 +1,1 @@
 - composition of HoCs requires dependencies in order
-- todo: implement update loop

@@ -15,7 +15,7 @@ const withDraggable = (WrappedComponent) => {
 
     constructor (props) {
       super();
-      const { position } = props;
+      const { bodyRef: { position } } = props;
       this.state = {
         position
       };
@@ -28,10 +28,15 @@ const withDraggable = (WrappedComponent) => {
       document.removeEventListener('mousemove', this._onDocumentMouseMove);
 
       const {
-        onDragEnd
+        position
+      } = this.state;
+
+      const {
+        onDragEnd,
+        index
       } = this.props;
 
-      onDragEnd();
+      onDragEnd(position, index);
 
       this.setState({
         pressed: false
@@ -74,7 +79,9 @@ const withDraggable = (WrappedComponent) => {
 
       const {
         onDragStart,
-        camera
+        camera,
+        bodyRef,
+        index
       } = this.props;
 
       dragPlane.setFromNormalAndCoplanarPoint(
@@ -91,7 +98,7 @@ const withDraggable = (WrappedComponent) => {
         pressed: true
       });
 
-      onDragStart();
+      onDragStart(position, index);
     };
 
     _onDocumentMouseMove = (event) => {
@@ -131,17 +138,20 @@ const withDraggable = (WrappedComponent) => {
         pressed
       } = this.state;
 
-      const childProps = Object.assign(
+      let childProps = Object.assign(
         {},
         passThroughProps,
         {
-          position,
           withDraggable: {
             pressed,
             onMouseDown: this._onMouseDown
           }
         }
       );
+
+      if (pressed) {
+        childProps.position = position;
+      }
 
       return (
         <WrappedComponent

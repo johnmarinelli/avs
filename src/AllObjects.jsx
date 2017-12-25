@@ -1,56 +1,43 @@
 import React from 'react';
 import { withHoverable, withDraggable  } from './enhancers';
+import * as THREE from 'three';
 import Entity from './Entity';
 import Compose from './Compose';
-import * as THREE from 'three';
+import ObjectDefinition from './ObjectDefinition';
 
 import PropTypes from 'prop-types';
 
 import MouseInput from './services/mouse-input';
 
 class AllObjects extends React.PureComponent {
-  static propTypes = {
-    mouseInput: PropTypes.instanceOf(MouseInput),
-    camera: PropTypes.instanceOf(THREE.PerspectiveCamera),
-
-    onObjectsMounted: PropTypes.func.isRequired,
-    onHoverStart: PropTypes.func.isRequired,
-    onHoverEnd: PropTypes.func.isRequired,
-    onDragStart: PropTypes.func.isRequired,
-    onDragEnd: PropTypes.func.isRequired,
-
-    cursor: PropTypes.any,
-  };
 
   constructor(props, context) {
     super(props, context);
 
-    const numObjects = 1;
+    const o = new ObjectDefinition({
+        position: new THREE.Vector3(0, 0, 0),
+        scale: new THREE.Vector3(1, 1, 1),
+        rotation: new THREE.Euler(0, 0, 0),
+        color: new THREE.Color(Math.random() * 0xffffff),
+      }
+    );
+    o.updateCb = function (ms) {
+      this.position.x += ms * 100;
+    }.bind(o);
 
-    let sphereGeometries = new Array(numObjects);
+    this.entities = [
+      o
+    ];
 
-    for (let i = 0; i < numObjects; ++i) {
-      const position = new THREE.Vector3(
-        Math.random() * 100.0,
-        Math.random() * 100.0,
-        Math.random() * 50.0
-      );
-
-      const radius = Math.random() * 10.0;
-
-      sphereGeometries[i] = {
-        position,
-        radius,
-      };
-    };
-
-    const objects = new Array(numObjects);
-    this.objects = objects;
-
-    this.sphereGeometries = sphereGeometries;
+    this.objects = new Array(this.entities.length);
 
     this._hoveredObjects = 0;
     this._draggingObjects = 0;
+
+    this.HoverableDraggableEntity = Compose(
+      withDraggable,
+      withHoverable
+    )(Entity);
   }
 
   componentDidMount() {
@@ -145,19 +132,19 @@ class AllObjects extends React.PureComponent {
       mouseInput,
       camera,
       cursor,
+      delta
     } = this.props;
 
-    return this.sphereGeometries.map((sphereGeometry, index) => {
+    return this.entities.map((objDefinition, index) => {
       const onCreate = this._onSphereCreate.bind(this, index);
       const {
         position,
-        radius
-      } = sphereGeometry;
+        scale,
+        rotation,
+        color
+      } = objDefinition;
 
-      const rotation = new THREE.Euler(0, 0, 0);
-      const scale = new THREE.Vector3(1, 1, 1);
-
-      const color= new THREE.Color(Math.random() * 0xffffff);
+      const radius = 10;
 
       const sphereGeometryElement =
         <sphereGeometry
@@ -169,11 +156,7 @@ class AllObjects extends React.PureComponent {
           <meshLambertMaterial
             color={color} />;
 
-      const HoverableDraggableEntity = Compose(
-        withDraggable,
-        withHoverable
-      )(Entity);
-
+      const { HoverableDraggableEntity }= this;
       const sphere =
         <HoverableDraggableEntity
           key={index}
@@ -197,20 +180,29 @@ class AllObjects extends React.PureComponent {
     });
   }
 
-  _update = (delta) => {
-  }
-
   render() {
     const objects = this.renderObjects();
     const pyramid = this._pyramid();
 
     return (
       <group>
-        {pyramid}
         {objects}
       </group>
     );
   }
 }
+AllObjects.propTypes = {
+  mouseInput: PropTypes.instanceOf(MouseInput),
+  camera: PropTypes.instanceOf(THREE.PerspectiveCamera),
+  delta: PropTypes.number,
+
+  onObjectsMounted: PropTypes.func.isRequired,
+  onHoverStart: PropTypes.func.isRequired,
+  onHoverEnd: PropTypes.func.isRequired,
+  onDragStart: PropTypes.func.isRequired,
+  onDragEnd: PropTypes.func.isRequired,
+
+  cursor: PropTypes.any,
+};
 
 export default AllObjects;

@@ -29,7 +29,9 @@ class App extends React.PureComponent {
 
     this.lightPosition = new THREE.Vector3(0, 500, 2000);
     this.lightTarget = new THREE.Vector3(0, 0, 0);
-    this.timer = new THREE.Clock(false);
+
+
+    this.timer = new THREE.Clock();
   }
 
   _onAnimate = () => {
@@ -62,7 +64,6 @@ class App extends React.PureComponent {
     this.controls = controls;
 
     this.controls.addEventListener('change', this._onTrackballChange);
-    this.timer.start();
   }
 
   _onTrackballChange = () => {
@@ -131,7 +132,7 @@ class App extends React.PureComponent {
 
     this.stats.update();
     this.controls.update();
-    const delta = this.timer.getDelta();
+    this.setState({delta: this.timer.getDelta()});
   }
 
   componentDidUpdate (newProps) {
@@ -161,7 +162,7 @@ class App extends React.PureComponent {
       mouseInput,
       camera,
       hovering,
-      dragging
+      dragging,
     } = this.state;
 
     let style = {};
@@ -231,6 +232,7 @@ class App extends React.PureComponent {
               mouseInput={mouseInput}
               camera={camera}
 
+              delta={this.timer.getDelta()}
               onObjectsMounted={this._onObjectsMounted}
 
               onHoverStart={this._onHoverStart}
