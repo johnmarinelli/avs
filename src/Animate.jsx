@@ -7,112 +7,15 @@ import Stats from 'stats-js';
 
 import MouseInput from './services/mouse-input';
 import TrackballControls from './services/trackball';
-import Entity from './Entity';
-import Compose from './Compose';
-import { withHoverable, withDraggable  } from './enhancers';
+import RotatingCube from './RotatingCube';
+import Line from './Line';
+import Resources from './Resources';
+import Lights from './Lights';
+import Camera from './Camera';
 
-const scale = new THREE.Vector3(1, 1, 1).multiplyScalar(0.5);
-const HoverableDraggableEntity = Compose(
-  withDraggable,
-  withHoverable
-)(Entity);
-
-class RotatingCube extends React.Component {
-  render () {
-    const {
-      index,
-      bodyRef,
-
-      position,
-      quaternion,
-
-      cursor,
-      camera,
-      mouseInput,
-
-      onDragStart,
-      onDragEnd
-    } = this.props;
-
-    const geometry =
-      <geometryResource
-        resourceId="cube" />;
-
-    const material =
-      <materialResource
-        resourceId="cubeMaterial" />;
-
-    const rotation = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
-
-    return (
-      <HoverableDraggableEntity
-        index={index}
-        material={material}
-        geometry={geometry}
-        onMouseEnter={_ => console.log('mouse enter')}
-        onMouseLeave={_ => console.log('mouse leave')}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-
-        cursor={cursor}
-        camera={camera}
-        mouseInput={mouseInput}
-
-        bodyRef={bodyRef}
-
-        scale={scale}
-        rotation={rotation}
-        position={position} />
-    );
-  }
-}
-
-RotatingCube.propTypes = {
-  position: PropTypes.instanceOf(THREE.Vector3).isRequired,
-  quaternion: PropTypes.instanceOf(THREE.Quaternion).isRequired
-};
+import { createBodies } from './BodyCreator';
 
 class Animate extends React.Component {
-
-  createBody (index) {
-    const position = new THREE.Vector3(
-      -2.5 + Math.random() * 5,
-      0.5 + Math.random() * 5,
-      -2.5 + Math.random() * 5
-    );
-
-    const velocity = new THREE.Vector3(
-      Math.random(),
-      Math.random(),
-      0.0
-    );
-
-    return {
-      position,
-      velocity,
-
-      timeScale: Math.random() * 0.0005,
-      startPosition: position.clone(),
-      movementPerFrame: new THREE.Vector3(Math.random(), Math.random(), Math.random()),
-      rotationDeltaPerFrame: new THREE.Quaternion()
-        .setFromEuler(new THREE.Euler(
-          Math.random() * 0.05,
-          Math.random() * 0.05,
-          Math.random() * 0.05
-        )),
-      quaternion: new THREE.Quaternion()
-    };
-  }
-
-  createBodies () {
-    const { bodies } = this;
-    const N = bodies.length;
-
-    for (let i = 0; i < N; ++i) {
-      bodies[i] = this.createBody(i);
-    }
-  }
-
   getMeshStates () {
     return this.bodies.map(({position, quaternion}) => ({
       position: new THREE.Vector3().copy(position),
@@ -122,36 +25,34 @@ class Animate extends React.Component {
 
   constructor (props, context) {
     super(props, context);
-    const N = 20;
 
     this.fog = new THREE.Fog(0x001525, 10, 40);
-    const d = 20;
+    this.cameraName = "camera";
 
-    this.lightPosition = new THREE.Vector3(d, d, d);
+    this.lightPosition = new THREE.Vector3(20, 20, 20);
     this.lightTarget = new THREE.Vector3(0, 0, 0);
-    this.groundQuaternion = new THREE.Quaternion()
-      .setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
 
     const cameraPosition = new THREE.Vector3(10, 2, 0);
     const cameraRotation = new THREE.Euler();
 
-    const bodies = new Array(N);
-
-    this.bodies = bodies;
-
-    this.createBodies();
+    this.bodies = createBodies(20).slice();
 
     this.state = {
       cameraPosition,
       cameraRotation,
+      linePoints: [new THREE.Vector3(), new THREE.Vector3()],
       mouseInput: null,
-      numBodies: N,
       meshStates: this.getMeshStates()
     };
 
     this.cursor = {
       hovering: false,
       dragging: false
+    };
+
+    this.refs = {
+      camera: null,
+      mouseInput: null
     };
   }
 
@@ -243,7 +144,6 @@ class Animate extends React.Component {
   }
 
   updatePhysics () {
-    const time = new Date().getTime();
     const bodies = this.bodies;
 
     for (let i = 0; i < bodies.length; ++i) {
@@ -251,21 +151,19 @@ class Animate extends React.Component {
 
       body.quaternion.multiply(body.rotationDeltaPerFrame);
 
-      const sinTime = Math.abs(Math.sin(time * body.timeScale));
-
-      const { movementPerFrame } = body;
-      /*
       const newPosition = body
-        .startPosition
-        .clone()
-        .add(movementPerFrame.clone())
-        .multiplyScalar(sinTime);
-      */
-
-      const newPosition = body.position.clone().add(body.velocity.clone().multiplyScalar(0.01));
+        .position.clone()
+        .add(body.velocity.clone().multiplyScalar(0.01));
 
       body.position.copy(newPosition);
     }
+
+    this.setState({
+      linePoints: [
+        bodies[0].position.clone(),
+        bodies[5].position.clone()
+      ]
+    });
   }
 
   updateGraphics () {
@@ -282,6 +180,10 @@ class Animate extends React.Component {
     this.bodies[i].position = newPos;
   };
 
+  setCameraRef (camera) {
+    this.refs.camera = camera;
+  }
+
   render () {
     const { cursor } = this;
 
@@ -292,12 +194,12 @@ class Animate extends React.Component {
 
     const {
       meshStates,
+      linePoints,
       cameraPosition,
       cameraRotation,
       camera,
       mouseInput
     } = this.state;
-    const d = 20;
 
     const cubeMeshes = meshStates.map(({position, quaternion}, i) => (
       <RotatingCube
@@ -308,17 +210,21 @@ class Animate extends React.Component {
         mouseInput={mouseInput}
         camera={camera}
         cursor={cursor}
-        bodyRef={this.bodies[i]}
         onDragStart={this.onDragStart}
         onDragEnd={this.onDragEnd}
         />
     ));
 
+    const line = (
+      <Line
+        points={linePoints} />
+    );
+
     return (
       <div ref="container">
         <React3
           antialias
-          mainCamera='camera'
+          mainCamera={this.cameraName}
           width={width}
           height={height}
 
@@ -326,74 +232,31 @@ class Animate extends React.Component {
 
           clearColor={this.fog.color}
 
-          gammaInput
-          gammaOutput
           shadowMapEnabled >
 
           <module
             ref="mouseInput"
             descriptor={MouseInput} />
 
-          <resources>
-
-            <boxGeometry
-              resourceId="cube"
-
-              width={0.5}
-              height={0.5}
-              depth={0.5}
-
-              widthSegments={10}
-              heightSegments={10} />
-
-            <meshPhongMaterial
-              resourceId="cubeMaterial"
-              color={0x888888} />
-
-            <meshBasicMaterial
-              resourceId="highlightMaterial"
-              color={0xffff00}
-              wireframe />
-
-          </resources>
+          <Resources />
 
           <scene
             ref="scene"
             fog={this.fog} >
-            <perspectiveCamera
-              name="camera"
-              ref="camera"
-              fov={70}
+
+            <Camera
+              cameraName={this.cameraName}
               aspect={width / height}
-              near={0.5}
-              far={10000}
-
               position={cameraPosition}
-              rotation={cameraRotation} />
+              rotation={cameraRotation}
+              setRef={this.setCameraRef.bind(this)} />
 
-            <ambientLight
-              color={0x666666} />
-
-            <directionalLight
-              color={0xffffff}
-              intensity={1.75}
-
-              castShadow
-
-              shadowMapWidth={1024}
-              shadowMapHeight={1024}
-
-              shadowCameraLeft={-d}
-              shadowCameraRight={d}
-              shadowCameraTop={d}
-              shadowCameraBottom={-d}
-
-              shadowCameraFar={3 * d}
-              shadowCameraNear={d}
-
+            <Lights
               position={this.lightPosition}
               lookAt={this.lightTarget} />
+
             {cubeMeshes}
+            {line}
           </scene>
         </React3>
       </div>

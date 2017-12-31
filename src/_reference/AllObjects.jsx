@@ -100,39 +100,11 @@ class AllObjects extends React.PureComponent {
     }
   };
 
-  _pyramid = () => {
-    const position = new THREE.Vector3(0, 0, 0);
-    const scale = new THREE.Vector3(1, 1, 1);
-    const rotation = new THREE.Euler(0, 0, 0);
-
-    const geometry =
-      <cylinderGeometry
-        radiusTop={1}
-        radiusBottom={10}
-        height={10}
-        radialSegments={4} />;
-
-      const material =
-        <meshLambertMaterial
-          color={0xff00ff} />;
-
-    return (
-      <Entity
-        material={material}
-        geometry={geometry}
-
-        scale={scale}
-        rotation={rotation}
-        position={position} />
-    );
-  };
-
   renderObjects () {
     const {
       mouseInput,
       camera,
-      cursor,
-      delta
+      cursor
     } = this.props;
 
     return this.entities.map((objDefinition, index) => {
@@ -182,7 +154,6 @@ class AllObjects extends React.PureComponent {
 
   render() {
     const objects = this.renderObjects();
-    const pyramid = this._pyramid();
 
     return (
       <group>

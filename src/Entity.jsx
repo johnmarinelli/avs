@@ -9,23 +9,43 @@ class Entity extends React.PureComponent {
       onCreate
     } = this.props;
 
-    onCreate(mesh);
+    if (onCreate) {
+      onCreate(mesh);
+    }
   };
 
   render () {
     const {
       geometry,
       material,
-      onMouseEnter,
-      onMouseDown,
-      onMouseLeave,
       position,
       rotation,
       scale,
 
+      onMouseEnter,
+      onMouseLeave,
+
       withHoverable = {},
       withDraggable = {}
     } = this.props;
+
+    const _onMouseEnter = (e) => {
+      if (withHoverable.onMouseEnter) {
+        withHoverable.onMouseEnter(e);
+      }
+      if (onMouseEnter) {
+        onMouseEnter(e);
+      }
+    };
+
+    const _onMouseLeave = (e) => {
+      if (withHoverable.onMouseLeave) {
+        withHoverable.onMouseLeave(e);
+      }
+      if (onMouseLeave) {
+        onMouseLeave(e);
+      }
+    };
 
     return (
       <group
@@ -36,9 +56,9 @@ class Entity extends React.PureComponent {
           castShadow
           receiveShadow
 
-          onMouseEnter={withHoverable.onMouseEnter}
+          onMouseEnter={_onMouseEnter}
           onMouseDown={withDraggable.onMouseDown}
-          onMouseLeave={withHoverable.onMouseLeave}
+          onMouseLeave={_onMouseLeave}
 
           ref={this._ref}>
           {geometry}
@@ -61,9 +81,5 @@ Entity.PropTypes = {
   onMouseLeave: PropTypes.func,
   onCreate: PropTypes.func
 };
-
-Entity.defaultProps = {
-  onCreate: () => {}
-}
 
 export default Entity;

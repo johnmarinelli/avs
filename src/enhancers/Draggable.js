@@ -11,14 +11,20 @@ const dragPlane = new THREE.Plane();
 const backVector = new THREE.Vector3(0, 0, -1);
 
 const withDraggable = (WrappedComponent) => {
-  class WithDraggable extends React.PureComponent {
+  class WithDraggable extends React.Component {
 
     constructor (props) {
       super();
-      const { bodyRef: { position } } = props;
+      const { position } = props;
       this.state = {
-        position
+        position: position
       };
+    }
+
+    componentWillReceiveProps (newProps) {
+      if (!this.state.pressed) {
+        this.setState({position: newProps.position});
+      }
     }
 
     _onDocumentMouseUp = (event) => {
@@ -44,31 +50,6 @@ const withDraggable = (WrappedComponent) => {
 
     };
 
-    _onDocumentMouseMove = (event) => {
-      event.preventDefault();
-
-      const {
-        mouseInput
-      } = this.props;
-
-      const ray:THREE.Ray = mouseInput.getCameraRay(
-        new THREE.Vector2(event.clientX, event.clientY)
-      );
-
-      const intersection = dragPlane.intersectLine(
-        new THREE.Line3(
-          ray.origin,
-          ray.origin.clone().add(ray.direction.clone().multiplyScalar(10000))
-        )
-      );
-
-      if (intersection) {
-        this.setState({
-          position: intersection.sub(this._offset)
-        });
-      };
-    };
-
     _onMouseDown = (event, intersection) => {
       event.preventDefault();
       event.stopPropagation();
@@ -80,7 +61,6 @@ const withDraggable = (WrappedComponent) => {
       const {
         onDragStart,
         camera,
-        bodyRef,
         index
       } = this.props;
 
@@ -89,7 +69,8 @@ const withDraggable = (WrappedComponent) => {
         intersection.point
       );
 
-      this._offset = intersection.point.clone().sub(position);
+      const offset = intersection.point.clone().sub(position);
+      this._offset = offset;
 
       document.addEventListener('mouseup', this._onDocumentMouseUp);
       document.addEventListener('mousemove', this._onDocumentMouseMove);
@@ -121,7 +102,7 @@ const withDraggable = (WrappedComponent) => {
 
       if (intersection) {
         this.setState({
-          position: intersection.sub(this._offset)
+          position: intersection.sub(this._offset),
         });
       };
     };
