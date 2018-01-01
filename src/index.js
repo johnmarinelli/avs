@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Animate from './Animate.jsx';
+import DeformedBall from './DeformedBall.jsx';
 
-ReactDOM.render(<Animate width={window.innerWidth} height={window.innerHeight}/>, document.getElementById('root'));
+ReactDOM.render(<DeformedBall width={window.innerWidth} height={window.innerHeight}/>, document.getElementById('root'));

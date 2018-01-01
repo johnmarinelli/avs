@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as THREE from 'three';
 import Entity from './Entity';
-import Compose from './Compose';
-import { withHoverable, withDraggable  } from './enhancers';
+import Compose from '../services/Compose';
+import { withHoverable, withDraggable  } from '../services/enhancers';
 
 const HoverableDraggableEntity = Compose(
   withDraggable,

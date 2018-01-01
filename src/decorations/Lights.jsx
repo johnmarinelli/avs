@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as THREE from 'three';
 
-const Lights = ({ position, lookAt, shadowDis }) => (
-  <group>
+/*
+ *
     <ambientLight
       color={0x666666} />
 
@@ -26,17 +26,27 @@ const Lights = ({ position, lookAt, shadowDis }) => (
 
       position={position}
       lookAt={lookAt} />
-  </group>
-);
+ */
 
-Lights.propTypes = {
-  position: PropTypes.instanceOf(THREE.Vector3).isRequired,
-  lookAt: PropTypes.instanceOf(THREE.Vector3).isRequired,
-  shadowDis: PropTypes.number
+const Lights = ({ positions }) => {
+  const pointLights = positions.map((pos, i) => (
+    <pointLight
+      key={i}
+      position={pos}
+      color={0xffffff}
+      intensity={1}
+      distance={0} />
+  ));
+
+  return (
+    <group>
+      {pointLights}
+    </group>
+  );
 };
 
-Lights.defaultProps = {
-  shadowDis: 20
+Lights.propTypes = {
+  positions: PropTypes.arrayOf(PropTypes.instanceOf(THREE.Vector3)),
 };
 
 export default Lights;

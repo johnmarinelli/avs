@@ -35,9 +35,9 @@ Camera.propTypes = {
 };
 
 Camera.defaultProps = {
-  fov: 70,
-  near: 0.5,
-  far: 10000
+  fov: 75,
+  near: 0.1,
+  far: 50
 };
 
 export default Camera;

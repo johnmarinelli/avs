@@ -16,7 +16,7 @@ const withHoverable = (WrappedComponent) => {
           ignorePointerEvents>
           {geometry}
           <materialResource
-            resourceId="highlightMaterial" />
+            resourceId="wireframeMaterial" />
         </mesh>
       );
     }
