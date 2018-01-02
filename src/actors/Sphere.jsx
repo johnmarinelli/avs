@@ -4,15 +4,44 @@ import * as THREE from 'three';
 
 class Sphere extends React.PureComponent {
 
+  setGeometry = () => {
+    const { vertices, faces } = this.state;
+
+    this.geometry = (
+      <geometry
+        faces={faces}
+        vertices={vertices} />
+    );
+
+    this.wireframeMesh = (
+      <mesh
+        ignorePointerEvents>
+        {this.geometry}
+        <materialResource
+          resourceId="wireframeMaterial" />
+      </mesh>
+    );
+
+    this.mesh = (
+      <mesh>
+        {this.geometry}
+        <materialResource
+          resourceId="sphereMaterial" />
+      </mesh>
+    );
+  };
+
   constructor () {
     super();
 
-    const sphereGeometry = new THREE.SphereGeometry(15, 8, 6, 0, 6.28, 0, 3.14);
+    this.sphereGeometry = new THREE.SphereGeometry(15, 8, 6, 0, 6.28, 0, 3.14);
 
     this.state = ({
-      vertices: sphereGeometry.vertices.slice(),
-      faces: sphereGeometry.faces.slice()
+      vertices: this.sphereGeometry.vertices.slice(),
+      faces: this.sphereGeometry.faces.slice()
     });
+
+    this.geometry = null;
 
     this.scale = new THREE.Vector3(
       1,
@@ -22,40 +51,59 @@ class Sphere extends React.PureComponent {
   }
 
   componentWillMount () {
-    const { vertices, faces } = this.state;
-    const geometry = (
-      <geometry
-        vertices={vertices}
-        faces={faces} />
-    );
+    this.setGeometry();
+  }
 
-    this.wireframeMesh = (
+  componentWillReceiveProps (nextProps) {
+    const { time } = nextProps;
+    const vertices = this.state.vertices.slice();
+
+    const d = Math.sin(time).toFixed(2);
+
+    for (let i = 1; i < vertices.length / 2; i+=2) {
+      const { x, y, z } = vertices[i];
+      vertices[i].set(x, y + (d / 2), z);
+    }
+
+    this.setState({ vertices });
+  }
+
+  shouldComponentUpdate (newProps) {
+    if (newProps.time !== this.props.time) return true;
+    else return false;
+  }
+
+  render () {
+    const { vertices, faces } = this.state;
+    const { position, rotation } = this.props;
+
+    const geometry =
+      <geometry
+        faces={faces}
+        vertices={vertices} />;
+
+    const wireframeMesh =
       <mesh
         ignorePointerEvents>
         {geometry}
         <materialResource
           resourceId="wireframeMaterial" />
       </mesh>
-    );
 
-    this.mesh = (
+    const mesh =
       <mesh>
         {geometry}
         <materialResource
           resourceId="sphereMaterial" />
-      </mesh>
-    );
-  }
+      </mesh>;
 
-  render () {
-    const { position, rotation } = this.props;
     return (
       <group
         position={position}
         rotation={rotation}
         scale={this.scale}>
-        {this.wireframeMesh}
-        {this.mesh}
+        {wireframeMesh}
+        {mesh}
       </group>
     );
   }

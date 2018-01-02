@@ -154,15 +154,12 @@ class DeformedBall extends React.Component {
     const { rotation } = protagonist;
     const { x, y, z } = rotation;
 
+    /*
     this.bodies
       .protagonist
       .rotation
       .set(x + 0.005, y + 0.005, 0);
-
-    this.bodies
-      .protagonist
-      .position
-      .add(new THREE.Vector3(0.001, 0, 0));
+      */
   }
 
   updateGraphics () {
@@ -201,6 +198,7 @@ class DeformedBall extends React.Component {
 
     const sphere = (
       <Sphere
+        time={new Date().getTime()}
         rotation={meshStates.protagonist.rotation}
         position={meshStates.protagonist.position} />
     );
