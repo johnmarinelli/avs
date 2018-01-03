@@ -2,39 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as THREE from 'three';
 
+import { rgbToHex } from '../utility/ColorUtility';
+
 class Sphere extends React.PureComponent {
-
-  setGeometry = () => {
-    const { vertices, faces } = this.state;
-
-    this.geometry = (
-      <geometry
-        faces={faces}
-        vertices={vertices} />
-    );
-
-    this.wireframeMesh = (
-      <mesh
-        ignorePointerEvents>
-        {this.geometry}
-        <materialResource
-          resourceId="wireframeMaterial" />
-      </mesh>
-    );
-
-    this.mesh = (
-      <mesh>
-        {this.geometry}
-        <materialResource
-          resourceId="sphereMaterial" />
-      </mesh>
-    );
-  };
 
   constructor () {
     super();
 
-    this.sphereGeometry = new THREE.SphereGeometry(15, 8, 6, 0, 6.28, 0, 3.14);
+    this.sphereGeometry = new THREE.SphereGeometry(15, 20, 20, 0, 6.28, 0, 3.14);
 
     this.state = ({
       vertices: this.sphereGeometry.vertices.slice(),
@@ -50,15 +25,11 @@ class Sphere extends React.PureComponent {
     );
   }
 
-  componentWillMount () {
-    this.setGeometry();
-  }
-
   componentWillReceiveProps (nextProps) {
-    const { time } = nextProps;
+    const { offset } = nextProps;
     const vertices = this.state.vertices.slice();
 
-    const d = Math.sin(time).toFixed(2);
+    const d = Math.sin(offset).toFixed(2);
 
     for (let i = 1; i < vertices.length / 2; i+=2) {
       const { x, y, z } = vertices[i];
@@ -69,7 +40,7 @@ class Sphere extends React.PureComponent {
   }
 
   shouldComponentUpdate (newProps) {
-    if (newProps.time !== this.props.time) return true;
+    if (newProps.offset !== this.props.offset) return true;
     else return false;
   }
 
@@ -88,13 +59,22 @@ class Sphere extends React.PureComponent {
         {geometry}
         <materialResource
           resourceId="wireframeMaterial" />
-      </mesh>
+      </mesh>;
+
+    const { color: { red, green, blue } }= this.props;
+    const hexColor = rgbToHex(red, green, blue);
+
+    const sphereMaterial =
+        <meshPhongMaterial
+          color={hexColor}
+          emissive={0x072534}
+          side={THREE.DoubleSide}
+          shading={THREE.FlatShading} />;
 
     const mesh =
       <mesh>
         {geometry}
-        <materialResource
-          resourceId="sphereMaterial" />
+        {sphereMaterial}
       </mesh>;
 
     return (
@@ -111,7 +91,13 @@ class Sphere extends React.PureComponent {
 
 Sphere.propTypes = {
   position: PropTypes.instanceOf(THREE.Vector3).isRequired,
-  rotation: PropTypes.instanceOf(THREE.Euler)
+  rotation: PropTypes.instanceOf(THREE.Euler),
+  color: PropTypes.object
+};
+
+Sphere.defaultProps = {
+  rotation: new THREE.Euler(0, 0, 0),
+  color: { red: 21, green: 98, blue: 137 }
 };
 
 export default Sphere;

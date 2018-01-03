@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "dis-gui": "^2.0.10",
     "react": "^15.6.1",
     "react-display-name": "^0.2.3",
     "react-dom": "^15.6.1",

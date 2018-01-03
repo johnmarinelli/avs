@@ -159,7 +159,7 @@ class DeformedBall extends React.Component {
       .protagonist
       .rotation
       .set(x + 0.005, y + 0.005, 0);
-      */
+    */
   }
 
   updateGraphics () {
@@ -180,12 +180,23 @@ class DeformedBall extends React.Component {
     this.refs.camera = camera;
   }
 
+  shouldComponentUpdate (newProps) {
+    if (newProps.sceneData.d !== this.props.sceneData.d) {
+      return true;
+    }
+
+    else {
+      return false;
+    }
+  }
+
   render () {
     const { cursor } = this;
 
     const {
       width,
-      height
+      height,
+      sceneData
     } = this.props;
 
     const {
@@ -198,7 +209,8 @@ class DeformedBall extends React.Component {
 
     const sphere = (
       <Sphere
-        time={new Date().getTime()}
+        color={sceneData.sphereColor}
+        offset={sceneData.d}
         rotation={meshStates.protagonist.rotation}
         position={meshStates.protagonist.position} />
     );
@@ -251,6 +263,12 @@ class DeformedBall extends React.Component {
     delete this.controls;
     delete this.stats;
   }
-}
+};
+
+DeformedBall.propTypes = {
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  sceneData: PropTypes.object.isRequired,
+};
 
 export default DeformedBall;
