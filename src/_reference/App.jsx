@@ -3,8 +3,8 @@ import './App.css';
 import React3 from 'react-three-renderer';
 import * as THREE from 'three';
 import MouseInput from './services/mouse-input';
-import AllSpheres from './AllSpheres';
-import TrackballControls from './trackball';
+import AllObjects from './AllObjects';
+import TrackballControls from './services/trackball';
 import Stats from 'stats-js';
 
 class App extends React.PureComponent {
@@ -29,6 +29,9 @@ class App extends React.PureComponent {
 
     this.lightPosition = new THREE.Vector3(0, 500, 2000);
     this.lightTarget = new THREE.Vector3(0, 0, 0);
+
+
+    this.timer = new THREE.Clock();
   }
 
   _onAnimate = () => {
@@ -70,7 +73,7 @@ class App extends React.PureComponent {
     });
   };
 
-  _onSpheresMounted = (spheres) => {
+  _onObjectsMounted = (spheres) => {
     this.spheres = spheres;
   };
 
@@ -129,6 +132,7 @@ class App extends React.PureComponent {
 
     this.stats.update();
     this.controls.update();
+    this.setState({delta: this.timer.getDelta()});
   }
 
   componentDidUpdate (newProps) {
@@ -158,7 +162,7 @@ class App extends React.PureComponent {
       mouseInput,
       camera,
       hovering,
-      dragging
+      dragging,
     } = this.state;
 
     let style = {};
@@ -224,11 +228,12 @@ class App extends React.PureComponent {
               shadowBias={-0.00022}
               shadowMapWidth={2048}
               shadowMapHeight={2048} />
-            <AllSpheres
+            <AllObjects
               mouseInput={mouseInput}
               camera={camera}
 
-              onSpheresMounted={this._onSpheresMounted}
+              delta={this.timer.getDelta()}
+              onObjectsMounted={this._onObjectsMounted}
 
               onHoverStart={this._onHoverStart}
               onHoverEnd={this._onHoverEnd}

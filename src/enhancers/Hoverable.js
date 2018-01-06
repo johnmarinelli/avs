@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import * as THREE from 'three';
 import getDisplayName from 'react-display-name';
-
-import MouseInput from './services/mouse-input';
 
 const withHoverable = (WrappedComponent) => {
   class WithHoverable extends React.PureComponent {
@@ -29,9 +26,6 @@ const withHoverable = (WrappedComponent) => {
         hovered: true
       });
 
-      const { onMouseEnter } = this.props;
-
-      onMouseEnter();
     }
 
     _onMouseLeave = () => {
@@ -39,50 +33,38 @@ const withHoverable = (WrappedComponent) => {
         this.setState({
           hovered: false
         });
-
-        const {
-          onMouseLeave
-        } = this.props;
-
-        onMouseLeave();
       }
     };
 
     render () {
-      const {
-        onMouseEnter,
-        onMouseLeave,
-        ...passThroughProps,
-      } = this.props;
       const { hovered } = this.state;
-      const dragging = this.props.cursor.dragging;
 
-      const hoverHighlight = (hovered && !dragging);
-      const hoverHighlightMesh = hoverHighlight ?
+      const hoverHighlightMesh = hovered ?
         this.hoverHighlightMesh :
         null;
 
       const childProps = Object.assign(
         {},
-        passThroughProps,
+        this.props,
         {
-          hovered,
-          hoverHighlightMesh
-        });
+          withHoverable: {
+            onMouseEnter: this._onMouseEnter,
+            onMouseLeave: this._onMouseLeave,
+            hovered,
+            hoverHighlightMesh
+          }
+        }
+      );
 
       return (
         <WrappedComponent
-          onMouseEnter={this._onMouseEnter}
-          onMouseLeave={this._onMouseLeave}
           {...childProps} />
       );
     }
   };
 
   WithHoverable.PropTypes = {
-    onMouseEnter: PropTypes.func.isRequired,
-    onMouseLeave: PropTypes.func.isRequired,
-    geometry: PropTypes.element,
+    geometry: PropTypes.element.isRequired,
     cursor: PropTypes.any
   };
 

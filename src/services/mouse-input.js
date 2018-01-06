@@ -367,9 +367,6 @@ class MouseInput extends Module {
       .sub(tempVector2.set(containerRect.left, containerRect.top))
       .divide(tempVector2.set(containerRect.width, containerRect.height));
 
-    // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
     relativeMouseCoords.x = relativeMouseCoords.x * 2 - 1;
     relativeMouseCoords.y = -relativeMouseCoords.y * 2 + 1;
 
