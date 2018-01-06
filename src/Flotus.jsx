@@ -17,10 +17,12 @@ import ParticleSystem from './ParticleSystem';
 
 class Flotus extends React.Component {
   getMeshStates () {
-    return this.bodies.map(({position, quaternion}) => ({
-      position: new THREE.Vector3().copy(position),
-      quaternion: new THREE.Quaternion().copy(quaternion)
-    }))
+    const { particleSystem: { position, rotation } } = this.state;
+
+    return {
+      position: position.clone(),
+      rotation: rotation.clone()
+    };
   }
 
   constructor (props, context) {
@@ -35,13 +37,15 @@ class Flotus extends React.Component {
     const cameraPosition = new THREE.Vector3(10, 2, 0);
     const cameraRotation = new THREE.Euler();
 
-    this.bodies = [];
-
     this.state = {
       cameraPosition,
       cameraRotation,
       mouseInput: null,
-      meshStates: this.getMeshStates()
+      particleSystem: {
+        position: new THREE.Vector3(),
+        rotation: new THREE.Euler()
+      },
+      meshStates: null
     };
 
     this.cursor = {
@@ -148,9 +152,20 @@ class Flotus extends React.Component {
   }
 
   updatePhysics () {
-    /*
-     * update this.bodies here
-    */
+    const t = Date.now() * 0.005;
+    const rz = 0.01 * t;
+
+    const { particleSystem } = this.state;
+    const { rotation } = particleSystem;
+
+    const newRotation = rotation.clone().set(rotation.x, rotation.y, rz);
+
+    this.setState({
+      particleSystem: {
+        ...particleSystem,
+        rotation: newRotation
+      }
+    });
   }
 
   updateGraphics () {
@@ -160,11 +175,9 @@ class Flotus extends React.Component {
   }
 
   onDragStart = (newPos, i) => {
-    this.bodies[i].position = newPos;
   };
 
   onDragEnd = (newPos, i) => {
-    this.bodies[i].position = newPos;
   };
 
   setCameraRef (camera) {
@@ -184,7 +197,8 @@ class Flotus extends React.Component {
       cameraPosition,
       cameraRotation,
       camera,
-      mouseInput
+      mouseInput,
+      particleSystem
     } = this.state;
 
     return (
@@ -222,7 +236,9 @@ class Flotus extends React.Component {
               position={this.lightPosition}
               lookAt={this.lightTarget} />
 
-            <ParticleSystem />
+            <ParticleSystem
+              position={particleSystem.position}
+              rotation={particleSystem.rotation} />
 
           </scene>
         </React3>

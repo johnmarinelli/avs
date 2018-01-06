@@ -9,41 +9,46 @@ class ParticleSystem extends React.Component {
 
     const { particleCount, radius } = props;
 
-    let positions = [],
-      colors = [],
-      sizes = [];
+    this.positions = [];
+    this.colors = [];
+    this.sizes = [];
 
     let color = new THREE.Color();
 
     for (let i = 0; i < particleCount; ++i) {
-      positions.push((Math.random() * 2 - 1) * radius);
-      positions.push((Math.random() * 2 - 1) * radius);
-      positions.push((Math.random() * 2 - 1) * radius);
+      this.positions.push((Math.random() * 2 - 1) * radius);
+      this.positions.push((Math.random() * 2 - 1) * radius);
+      this.positions.push((Math.random() * 2 - 1) * radius);
 
       color.setHSL(i / particleCount, 1.0, 0.5);
-      colors.push(color.r, color.g, color.b);
+      this.colors.push(color.r, color.g, color.b);
 
-      sizes.push(20);
+      this.sizes.push(20);
     }
+  }
 
-    this.geometry = (
-      <bufferGeometry
-        index={null}
-        position={new THREE.Float32BufferAttribute(positions.slice(), 3)}
-        color={new THREE.Float32BufferAttribute(colors.slice(), 3)} />
-    );
+  componentWillUpdate () {
+    let x, y, z;
+    const t = Date.now() * 0.005;
 
-    this.material = (
-      <materialResource
-        resourceId="particleMaterial" />
-    );
+    for (let i = 0; i < this.props.particleCount * 3; i++) {
+      this.positions[i] += Math.sin(t) * 0.1;
+    }
   }
 
   render () {
+    const { position, rotation } = this.props;
+
     return (
-      <points>
-        {this.geometry}
-        {this.material}
+      <points
+        position={position}
+        rotation={rotation}>
+        <bufferGeometry
+          index={null}
+          position={new THREE.Float32BufferAttribute(this.positions.slice(), 3)}
+          color={new THREE.Float32BufferAttribute(this.colors.slice(), 3)} />
+        <materialResource
+          resourceId="particleMaterial" />
       </points>
     );
   }
@@ -52,13 +57,17 @@ class ParticleSystem extends React.Component {
 ParticleSystem.propTypes = {
   particleCount: PropTypes.number,
   radius: PropTypes.number,
-  particleMaterial: PropTypes.element
+  particleMaterial: PropTypes.element,
+  position: PropTypes.instanceOf(THREE.Vector3),
+  rotation: PropTypes.instanceOf(THREE.Euler)
 };
 
 ParticleSystem.defaultProps = {
-  particleCount: 1800,
-  radius: 10,
-  particleMaterial: (<materialResource resourceId="particleMaterial" />)
+  particleCount: 500,
+  radius: 1,
+  particleMaterial: (<materialResource resourceId="particleMaterial" />),
+  position: new THREE.Vector3(),
+  rotation: new THREE.Euler()
 };
 
 export default ParticleSystem;
