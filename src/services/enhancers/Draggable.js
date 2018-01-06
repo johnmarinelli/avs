@@ -147,13 +147,16 @@ const withDraggable = (WrappedComponent) => {
   };
 
   WithDraggable.PropTypes = {
-    mouseInput: PropTypes.instanceOf(MouseInput),
-    onDragStart: PropTypes.func.isRequired,
-    onDragEnd: PropTypes.func.isRequired,
+    mouseInput: PropTypes.instanceOf(MouseInput).isRequired,
+    camera: PropTypes.object.isRequired,
+    onDragStart: PropTypes.func,
+    onDragEnd: PropTypes.func,
     pressedColor: PropTypes.any
   };
 
   WithDraggable.defaultProps = {
+    onDragStart: () => {},
+    onDragEnd: () => {},
     pressedColor: 0x00ff00
   };
 

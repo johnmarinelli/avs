@@ -11,6 +11,7 @@ import Sphere from './actors/Sphere';
 import Resources from './wardrobe/Resources';
 import Lights from './decorations/Lights';
 import Camera from './utility/Camera';
+import { compareObjects } from './utility/ObjectUtility';
 
 class DeformedBall extends React.Component {
   getMeshStates () {
@@ -181,12 +182,12 @@ class DeformedBall extends React.Component {
   }
 
   shouldComponentUpdate (newProps) {
-    if (newProps.sceneData.d !== this.props.sceneData.d) {
-      return true;
-    }
-
-    else {
+    const sceneDataChanged = !compareObjects(newProps.sceneData, this.props.sceneData);
+    if (sceneDataChanged) {
       return false;
+    }
+    else {
+      return true;
     }
   }
 

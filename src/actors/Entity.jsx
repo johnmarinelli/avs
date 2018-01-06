@@ -16,6 +16,7 @@ class Entity extends React.PureComponent {
 
   render () {
     const {
+      geometry,
       geometries,
       material,
       position,
@@ -61,7 +62,7 @@ class Entity extends React.PureComponent {
           onMouseLeave={_onMouseLeave}
 
           ref={this._ref}>
-          {geometries}
+          {geometry}
           {material}
         </mesh>
         {withHoverable.hoverHighlightMesh}
@@ -71,7 +72,7 @@ class Entity extends React.PureComponent {
 }
 
 Entity.PropTypes = {
-  geometry: PropTypes.element.isRequired,
+  geometry: PropTypes.element,
   material: PropTypes.element.isRequired,
   position: PropTypes.instanceOf(THREE.Vector3).isRequired,
   scale: PropTypes.instanceOf(THREE.Vector3).isRequired,

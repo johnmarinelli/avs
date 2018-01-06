@@ -3,6 +3,15 @@ import PropTypes from 'prop-types';
 import * as THREE from 'three';
 
 import { rgbToHex } from '../utility/ColorUtility';
+import { compareObjects } from '../utility/ObjectUtility';
+
+import Entity from './Entity';
+import Compose from '../services/Compose'
+import { withHoverable, withDraggable } from '../services/enhancers/'
+
+const HoverableEntity = Compose(
+  withHoverable
+)(Entity);
 
 class Sphere extends React.PureComponent {
 
@@ -15,38 +24,39 @@ class Sphere extends React.PureComponent {
       vertices: this.sphereGeometry.vertices.slice(),
       faces: this.sphereGeometry.faces.slice()
     });
-
-    this.geometry = null;
-
-    this.scale = new THREE.Vector3(
-      1,
-      1,
-      1
-    );
   }
 
   componentWillReceiveProps (nextProps) {
     const { offset } = nextProps;
-    const vertices = this.state.vertices.slice();
 
-    const d = Math.sin(offset).toFixed(2);
+    if (offset !== this.props.offset) {
+      const vertices = this.state.vertices.slice();
 
-    for (let i = 1; i < vertices.length / 2; i+=2) {
-      const { x, y, z } = vertices[i];
-      vertices[i].set(x, y + (d / 2), z);
+      const d = Math.sin(offset).toFixed(2);
+
+      for (let i = 1; i < vertices.length / 2; i+=2) {
+        const { x, y, z } = vertices[i];
+        vertices[i].set(x, y + (d / 2), z);
+      }
+
+      this.setState({ vertices });
     }
-
-    this.setState({ vertices });
   }
 
   shouldComponentUpdate (newProps) {
-    if (newProps.offset !== this.props.offset) return true;
+    if (newProps.camera !== this.props.camera ||
+        newProps.offset !== this.props.offset ||
+        newProps.color.red !== this.props.color.red ||
+        newProps.color.green !== this.props.color.green ||
+        newProps.color.blue !== this.props.color.blue) return true;
     else return false;
   }
 
   render () {
     const { vertices, faces } = this.state;
-    const { position, rotation } = this.props;
+    const { position, rotation, scale, camera, mouseInput } = this.props;
+
+    console.log(camera)
 
     const geometry =
       <geometry
@@ -78,13 +88,12 @@ class Sphere extends React.PureComponent {
       </mesh>;
 
     return (
-      <group
+      <HoverableEntity
+        geometry={geometry}
+        material={sphereMaterial}
         position={position}
-        rotation={rotation}
-        scale={this.scale}>
-        {wireframeMesh}
-        {mesh}
-      </group>
+        scale={scale}
+        rotation={rotation} />
     );
   }
 };
@@ -92,11 +101,13 @@ class Sphere extends React.PureComponent {
 Sphere.propTypes = {
   position: PropTypes.instanceOf(THREE.Vector3).isRequired,
   rotation: PropTypes.instanceOf(THREE.Euler),
+  scale: PropTypes.instanceOf(THREE.Vector3),
   color: PropTypes.object
 };
 
 Sphere.defaultProps = {
   rotation: new THREE.Euler(0, 0, 0),
+  scale: new THREE.Vector3(1, 1, 1),
   color: { red: 21, green: 98, blue: 137 }
 };
 
