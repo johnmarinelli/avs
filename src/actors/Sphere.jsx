@@ -9,10 +9,6 @@ import Entity from './Entity';
 import Compose from '../services/Compose'
 import { withHoverable, withDraggable } from '../services/enhancers/'
 
-const HoverableEntity = Compose(
-  withHoverable
-)(Entity);
-
 class Sphere extends React.PureComponent {
 
   constructor () {
@@ -20,9 +16,12 @@ class Sphere extends React.PureComponent {
 
     this.sphereGeometry = new THREE.SphereGeometry(15, 20, 20, 0, 6.28, 0, 3.14);
 
+    this.originalVertices = this.sphereGeometry.vertices.map(v => v.clone());
+
     this.state = ({
       vertices: this.sphereGeometry.vertices.slice(),
-      faces: this.sphereGeometry.faces.slice()
+      faces: this.sphereGeometry.faces.slice(),
+      needsUpdate: false
     });
   }
 
@@ -36,7 +35,7 @@ class Sphere extends React.PureComponent {
 
       for (let i = 1; i < vertices.length / 2; i+=2) {
         const { x, y, z } = vertices[i];
-        vertices[i].set(x, y + (d / 2), z);
+        vertices[i].set(x, y + ((d / 2) * 10), z);
       }
 
       this.setState({ vertices });
@@ -44,8 +43,7 @@ class Sphere extends React.PureComponent {
   }
 
   shouldComponentUpdate (newProps) {
-    if (newProps.camera !== this.props.camera ||
-        newProps.offset !== this.props.offset ||
+    if (newProps.offset !== this.props.offset ||
         newProps.color.red !== this.props.color.red ||
         newProps.color.green !== this.props.color.green ||
         newProps.color.blue !== this.props.color.blue) return true;
@@ -54,9 +52,7 @@ class Sphere extends React.PureComponent {
 
   render () {
     const { vertices, faces } = this.state;
-    const { position, rotation, scale, camera, mouseInput } = this.props;
-
-    console.log(camera)
+    const { position, rotation, scale } = this.props;
 
     const geometry =
       <geometry
@@ -88,12 +84,13 @@ class Sphere extends React.PureComponent {
       </mesh>;
 
     return (
-      <HoverableEntity
-        geometry={geometry}
-        material={sphereMaterial}
+      <group
         position={position}
-        scale={scale}
-        rotation={rotation} />
+        rotation={rotation}
+        scale={scale}>
+        {mesh}
+        {wireframeMesh}
+      </group>
     );
   }
 };
