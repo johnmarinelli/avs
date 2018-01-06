@@ -19,7 +19,32 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>Pretty Colors</title>
+
+    <script type="x-shader/x-vertex" id="vertexShader">
+      varying vec3 vColor;
+
+      float rand(vec2 co){
+          return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+      }
+
+      void main () {
+        vColor = color;
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        float size = rand(color.rg);
+        gl_PointSize = size * (300.0 / -mvPosition.z);
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader">
+      uniform sampler2D texture;
+      varying vec3 vColor;
+      void main () {
+        gl_FragColor = vec4(vColor, 1.0);
+        gl_FragColor = gl_FragColor * texture2D(texture, gl_PointCoord);
+      }
+    </script>
   </head>
   <body>
     <noscript>

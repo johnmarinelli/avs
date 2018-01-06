@@ -1,9 +1,25 @@
 import React from 'react';
+import * as THREE from 'three';
 
 class Resources extends React.Component {
   render () {
     return (
       <resources>
+        <shaderMaterial
+          resourceId="particleMaterial"
+          vertexShader={document.getElementById('vertexShader').textContent}
+          fragmentShader={document.getElementById('fragmentShader').textContent}
+          blending={THREE.AdditiveBlending}
+          depthTest={false}
+          transparent={true}
+          vertexColors={THREE.FaceColors}
+          uniforms={
+            {
+              texture: {
+                value: new THREE.TextureLoader().load('particle.png')
+              }
+            }}
+        />
         <boxGeometry
           resourceId="cube"
 
