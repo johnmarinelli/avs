@@ -17,9 +17,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "repl": "./node_modules/.bin/babel-node"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "stats-js": "^1.0.0-alpha1"
   }
 }

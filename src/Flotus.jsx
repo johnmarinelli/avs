@@ -34,7 +34,7 @@ class Flotus extends React.Component {
     this.lightPosition = new THREE.Vector3(20, 20, 20);
     this.lightTarget = new THREE.Vector3(0, 0, 0);
 
-    const cameraPosition = new THREE.Vector3(10, 2, 0);
+    const cameraPosition = new THREE.Vector3(0, 2, 1);
     const cameraRotation = new THREE.Euler();
 
     this.state = {
@@ -149,6 +149,7 @@ class Flotus extends React.Component {
         camera
       });
     }
+
   }
 
   updatePhysics () {
@@ -159,10 +160,25 @@ class Flotus extends React.Component {
     const { rotation } = particleSystem;
 
     const newRotation = rotation.clone().set(rotation.x, rotation.y, rz);
+    let newPosition = particleSystem.position.clone();
+
+    if (this.refs.mouseInput.isReady() && this.state.camera) {
+      const { particleSystem, camera } = this.state;
+      let { _mouse: { x, y } } = this.refs.mouseInput;
+
+      x = (x / window.innerWidth) * 2 - 1;
+      y = -(y / window.innerHeight) * 2 + 1;
+      let vec = new THREE.Vector3(x, y, 0.5);
+      vec.unproject(camera);
+      let dir = vec.sub(camera.position).normalize();
+      let dis = -camera.position.z / dir.z;
+      newPosition = camera.position.clone().add(dir.multiplyScalar(dis));
+    }
 
     this.setState({
       particleSystem: {
         ...particleSystem,
+        position: newPosition,
         rotation: newRotation
       }
     });
