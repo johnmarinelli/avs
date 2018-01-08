@@ -30,12 +30,21 @@ class Resources extends React.Component {
           widthSegments={10}
           heightSegments={10} />
 
+        <icosahedronGeometry
+          resourceId="icosahedron"
+          radius={0.5}
+          detail={0} />
+
         <lineBasicMaterial
           resourceId="lineMaterial"
           color={0xff00ff} />
 
         <meshPhongMaterial
-          resourceId="cubeMaterial"
+          resourceId="greyPhongMaterial"
+          color={0x888888} />
+
+        <meshLambertMaterial
+          resourceId="greyLambertMaterial"
           color={0x888888} />
 
         <meshBasicMaterial

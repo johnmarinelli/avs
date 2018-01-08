@@ -6,8 +6,8 @@ import * as THREE from 'three';
 import { magnitude, limit } from './utility/VectorUtility'
 
 let idCounter = 0;
-const maxSpeed = 0.03;
-const maxForce = 0.0003;
+const maxSpeed = 0.003;
+const maxForce = 0.00003;
 let systemPosition = new THREE.Vector3();
 class Boid {
   constructor (v) {
@@ -21,19 +21,29 @@ class Boid {
   run (others) {
     this.flock(others);
     this.update();
-    this.applyBorders();
+    //this.applyBorders();
   }
 
   flock (others) {
+    const idle = this.idle();
     const sep = this.separate(others);
     const align = this.align(others);
     const coh = this.cohesion(others);
     sep.multiplyScalar(1.5);
     align.multiplyScalar(1.0);
     coh.multiplyScalar(1.0);
+    this.applyForce(idle);
     this.applyForce(sep);
     this.applyForce(align);
     this.applyForce(coh);
+  }
+
+  idle () {
+    const t = Math.round(Date.now() / 1000);
+    const r = 3.0;
+    const nx = Math.round((r * Math.cos(t)) * 10) / 10
+    const ny = Math.round((r * Math.sin(t)) * 10) / 10;
+    return new THREE.Vector3(nx, ny, 0);
   }
 
   // calculate steering force towards a desired target
@@ -49,7 +59,7 @@ class Boid {
   }
 
   separate (others) {
-    const desiredSep = 0.3;
+    const desiredSep = 0.6;
 
     let steer = new THREE.Vector3();
     let count = 0;
@@ -85,7 +95,7 @@ class Boid {
 
   // calculate avg velocity for other boids
   align (others) {
-    const neighborDist = 0.6;
+    const neighborDist = 1.2;
     let sum = new THREE.Vector3();
 
     let count = 0;
@@ -116,7 +126,7 @@ class Boid {
   }
 
   cohesion (others) {
-    const neighborDist = 0.6;
+    const neighborDist = 1.2;
 
     let sum = new THREE.Vector3();
     let count = 0;
@@ -132,7 +142,8 @@ class Boid {
 
     if (count > 0) {
       sum.divideScalar(count);
-      return this.seek(sum);
+      //return this.seek(sum);
+      return this.seek(systemPosition);
     }
 
     else return new THREE.Vector3();
@@ -150,12 +161,12 @@ class Boid {
   }
 
   applyBorders () {
-    if (this.position.x < -10.0) this.velocity.x *= -1.0;
-    if (this.position.y < -10.0) this.velocity.y *= -1.0;
-    if (this.position.z < -10.0) this.velocity.z *= -1.0;
-    if (this.position.x >  10.0) this.velocity.x *= -1.0;
-    if (this.position.y >  10.0) this.velocity.y *= -1.0;
-    if (this.position.z >  10.0) this.velocity.z *= -1.0;
+    if (this.position.x < -1.0) this.velocity.x *= -1.0;
+    if (this.position.y < -1.0) this.velocity.y *= -1.0;
+    if (this.position.z < -1.0) this.velocity.z *= -1.0;
+    if (this.position.x >  1.0) this.velocity.x *= -1.0;
+    if (this.position.y >  1.0) this.velocity.y *= -1.0;
+    if (this.position.z >  1.0) this.velocity.z *= -1.0;
   }
 };
 
@@ -257,8 +268,8 @@ BoidSystem.propTypes = {
 };
 
 BoidSystem.defaultProps = {
-  particleCount: 500,
-  radius: 50,
+  particleCount: 100,
+  radius: 3,
   particleMaterial: (<materialResource resourceId="particleMaterial" />),
   position: new THREE.Vector3(),
   rotation: new THREE.Euler()

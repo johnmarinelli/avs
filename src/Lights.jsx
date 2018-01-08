@@ -4,6 +4,7 @@ import * as THREE from 'three';
 
 const Lights = ({ position, lookAt, shadowDis }) => (
   <group>
+    {/*
     <ambientLight
       color={0x666666} />
 
@@ -26,6 +27,7 @@ const Lights = ({ position, lookAt, shadowDis }) => (
 
       position={position}
       lookAt={lookAt} />
+    */}
   </group>
 );
 

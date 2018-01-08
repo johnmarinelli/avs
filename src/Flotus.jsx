@@ -13,11 +13,11 @@ import Camera from './Camera';
 
 import Palette from './Palette';
 
-import ParticleSystem from './ParticleSystem';
+import BoidSystem from './BoidSystem';
 
 class Flotus extends React.Component {
   getMeshStates () {
-    const { particleSystem: { position, rotation } } = this.state;
+    const { boidSystem: { position, rotation } } = this.state;
 
     return {
       position: position.clone(),
@@ -41,7 +41,7 @@ class Flotus extends React.Component {
       cameraPosition,
       cameraRotation,
       mouseInput: null,
-      particleSystem: {
+      boidSystem: {
         position: new THREE.Vector3(),
         rotation: new THREE.Euler()
       },
@@ -156,14 +156,14 @@ class Flotus extends React.Component {
     const t = Date.now() * 0.005;
     const rz = 0.01 * t;
 
-    const { particleSystem } = this.state;
-    const { rotation } = particleSystem;
+    const { boidSystem } = this.state;
+    const { rotation } = boidSystem;
 
     const newRotation = rotation.clone().set(rotation.x, rotation.y, rz);
-    let newPosition = particleSystem.position.clone();
+    let newPosition = boidSystem.position.clone();
 
     if (this.refs.mouseInput.isReady() && this.state.camera) {
-      const { particleSystem, camera } = this.state;
+      const { boidSystem, camera } = this.state;
       let { _mouse: { x, y } } = this.refs.mouseInput;
 
       x = (x / window.innerWidth) * 2 - 1;
@@ -176,10 +176,10 @@ class Flotus extends React.Component {
     }
 
     this.setState({
-      particleSystem: {
-        ...particleSystem,
+      boidSystem: {
+        ...boidSystem,
         position: newPosition,
-        rotation: newRotation
+        //rotation: newRotation
       }
     });
   }
@@ -214,7 +214,7 @@ class Flotus extends React.Component {
       cameraRotation,
       camera,
       mouseInput,
-      particleSystem
+      boidSystem
     } = this.state;
 
     return (
@@ -252,10 +252,31 @@ class Flotus extends React.Component {
               position={this.lightPosition}
               lookAt={this.lightTarget} />
 
-            <ParticleSystem
-              position={particleSystem.position}
-              rotation={particleSystem.rotation} />
+            <pointLight
+              position={boidSystem.position} />
 
+            <mesh
+              position={new THREE.Vector3(1, 1, 1)}
+              rotation={new THREE.Euler(45, 0, 45)}>
+              <geometryResource
+                resourceId="cube" />
+              <materialResource
+                resourceId="greyPhongMaterial" />
+            </mesh>
+
+            <mesh
+              position={new THREE.Vector3(-1, -1, 1)}
+              rotation={new THREE.Euler(45, 45, 45)}>
+              <geometryResource
+                resourceId="icosahedron" />
+              <materialResource
+                resourceId="greyLambertMaterial" />
+            </mesh>
+
+            <BoidSystem
+              particleCount={100}
+              position={boidSystem.position}
+              rotation={boidSystem.rotation} />
           </scene>
         </React3>
       </div>

@@ -32,7 +32,7 @@
         vColor = color;
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         float size = rand(color.rg);
-        gl_PointSize = 1.0 * (300.0 / -mvPosition.z);
+        gl_PointSize = size * (300.0 / -mvPosition.z);
         gl_Position = projectionMatrix * mvPosition;
       }
     </script>
