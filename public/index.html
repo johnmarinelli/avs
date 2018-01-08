@@ -21,7 +21,7 @@
     -->
     <title>Pretty Colors</title>
 
-    <script type="x-shader/x-vertex" id="vertexShader">
+    <script type="x-shader/x-vertex" id="particleVertexShader1">
       varying vec3 vColor;
 
       float rand(vec2 co){
@@ -37,12 +37,33 @@
       }
     </script>
 
-    <script type="x-shader/x-fragment" id="fragmentShader">
+    <script type="x-shader/x-fragment" id="particleFragmentShader1">
       uniform sampler2D texture;
       varying vec3 vColor;
       void main () {
         gl_FragColor = vec4(vColor, 1.0);
         gl_FragColor = gl_FragColor * texture2D(texture, gl_PointCoord);
+      }
+    </script>
+
+    <script type="x-shader/x-vertex" id="particleVertexShader2">
+      varying vec3 vColor;
+      uniform mat4 perspectiveMatrix;
+
+      void main(void) {
+        vColor = color;
+        gl_PointSize = 2.0;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    </script>
+
+    <script type="x-shader/x-fragment" id="particleFragmentShader2">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+      varying vec3 vColor;
+      void main(void) {
+        gl_FragColor = vec4(vColor, 1.0);
       }
     </script>
   </head>
@@ -51,15 +72,5 @@
       You need to enable JavaScript to run this app.
     </noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

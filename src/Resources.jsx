@@ -7,18 +7,21 @@ class Resources extends React.Component {
       <resources>
         <shaderMaterial
           resourceId="particleMaterial"
-          vertexShader={document.getElementById('vertexShader').textContent}
-          fragmentShader={document.getElementById('fragmentShader').textContent}
-          blending={THREE.AdditiveBlending}
+          vertexShader={document.getElementById('particleVertexShader2').textContent}
+          fragmentShader={document.getElementById('particleFragmentShader2').textContent}
+          blending={THREE.NormalBlending}
           depthTest={false}
           transparent={true}
-          vertexColors={THREE.FaceColors}
-          uniforms={
-            {
-              texture: {
-                value: new THREE.TextureLoader().load('particle.png')
-              }
-            }}
+          vertexColors={THREE.VertexColors}
+          uniforms={{
+            perspectiveMatrix: {
+              value: new THREE.Matrix4()
+            },
+
+            texture: {
+              value: new THREE.TextureLoader().load('particle.png')
+            }
+          }}
         />
         <boxGeometry
           resourceId="cube"

@@ -8,225 +8,151 @@ import { magnitude, limit } from './utility/VectorUtility'
 let idCounter = 0;
 const maxSpeed = 0.03;
 const maxForce = 0.0003;
-let systemPosition = new THREE.Vector3();
-class Boid {
-  constructor (v) {
+class Particle {
+  constructor (pos = new THREE.Vector3(), vel = new THREE.Vector3(), col = new THREE.Color()) {
     this.id = idCounter++;
-    this.position = v ? v.clone() : new THREE.Vector3();
-    this.velocity = new THREE.Vector3();
+    this.position = pos.clone();
+    this.velocity = vel.clone();
+    this.color = col.clone();
     this.acceleration = new THREE.Vector3();
-    this.color = new THREE.Color();
-  }
-
-  run (others) {
-    this.flock(others);
-    this.update();
-    this.applyBorders();
-  }
-
-  flock (others) {
-    const sep = this.separate(others);
-    const align = this.align(others);
-    const coh = this.cohesion(others);
-    sep.multiplyScalar(1.5);
-    align.multiplyScalar(1.0);
-    coh.multiplyScalar(1.0);
-    this.applyForce(sep);
-    this.applyForce(align);
-    this.applyForce(coh);
-  }
-
-  // calculate steering force towards a desired target
-  seek (target) {
-    // vector pointing from this position to target
-    let desired = target.clone().sub(this.position);
-    desired.normalize();
-    desired.multiplyScalar(maxSpeed);
-
-    let steer = desired.clone().sub(this.velocity);
-    steer = limit(steer, maxForce);
-    return steer;
-  }
-
-  separate (others) {
-    const desiredSep = 0.3;
-
-    let steer = new THREE.Vector3();
-    let count = 0;
-
-    for (let i = 0; i < others.length; ++i) {
-      const other = others[i];
-      const d = this.position.distanceTo(other.position);
-      if ((d > 0) && (d < desiredSep)) {
-        // vector pointing away from neighbor
-        const dif = this.position.clone().sub(other.position);
-        dif.normalize();
-        dif.divideScalar(d);
-        steer.add(dif);
-        count++;
-      }
-    }
-
-    // average
-    if (count > 0) {
-      steer.divideScalar(count);
-    }
-
-    // steering = desired - velocity
-    if (magnitude(steer) > 0.0) {
-      steer.normalize();
-      steer.multiplyScalar(maxSpeed);
-      steer.sub(this.velocity);
-      steer = limit(steer, maxForce);
-    }
-
-    return steer;
-  }
-
-  // calculate avg velocity for other boids
-  align (others) {
-    const neighborDist = 0.6;
-    let sum = new THREE.Vector3();
-
-    let count = 0;
-
-    for (let i = 0; i < others.length; ++i) {
-      const other = others[i];
-      const d = this.position.distanceTo(other.position);
-      if ((d > 0) && (d < neighborDist)) {
-        sum.add(other.velocity);
-        count++;
-      }
-    }
-
-    if (count > 0) {
-      sum.divideScalar(count);
-
-      sum.normalize();
-      sum.multiplyScalar(maxSpeed);
-      let steer = sum.clone();
-      steer.sub(this.velocity);
-      steer = limit(steer, this.velocity);
-      return steer;
-    }
-
-    else {
-      return new THREE.Vector3();
-    }
-  }
-
-  cohesion (others) {
-    const neighborDist = 0.6;
-
-    let sum = new THREE.Vector3();
-    let count = 0;
-
-    for (let i = 0; i < others.length; ++i) {
-      const other = others[i];
-      const d = this.position.distanceTo(other.position);
-      if ((d > 0) && (d < neighborDist)) {
-        sum.add(other.position);
-        count++;
-      }
-    }
-
-    if (count > 0) {
-      sum.divideScalar(count);
-      return this.seek(sum);
-    }
-
-    else return new THREE.Vector3();
-  }
-
-  applyForce (force) {
-    this.acceleration.add(force);
-  }
-
-  update () {
-    this.velocity.add(this.acceleration);
-    this.velocity = limit(this.velocity, maxSpeed);
-    this.position.add(this.velocity);
-    this.acceleration.multiplyScalar(0.0);
-  }
-
-  applyBorders () {
-    if (this.position.x < -10.0) this.velocity.x *= -1.0;
-    if (this.position.y < -10.0) this.velocity.y *= -1.0;
-    if (this.position.z < -10.0) this.velocity.z *= -1.0;
-    if (this.position.x >  10.0) this.velocity.x *= -1.0;
-    if (this.position.y >  10.0) this.velocity.y *= -1.0;
-    if (this.position.z >  10.0) this.velocity.z *= -1.0;
   }
 };
 
-class Flock {
-  constructor (boids) {
-    this.boids = boids.slice();
+class Particles {
+  constructor (particles) {
+    this.particles = particles.slice();
   }
 
   run () {
-    this.boids.forEach(b => {
-      const others = this.boids.filter(o => b.id !== o.id);
+    this.particles.forEach(b => {
+      const others = this.particles.filter(o => b.id !== o.id);
       b.run(others);
     })
   }
 
   update () {
-    this.boids.forEach(b => b.update());
+    this.particles.forEach(b => b.update());
   }
 };
 
-class BoidSystem extends React.Component {
+class ParticleSystem extends React.Component {
   constructor (props) {
     super(props);
     this.state = {ready: false};
 
     const { particleCount, radius } = props;
 
-    this.particles = [];
-
-    this.positions = [];
-    this.colors = [];
-
-    let color = new THREE.Color();
-
-    for (let i = 0; i < particleCount; ++i) {
-      const pos = new THREE.Vector3(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
-      this.particles.push(new Boid(pos));
-
-      this.positions.push((Math.random() * 2 - 1) * radius);
-      this.positions.push((Math.random() * 2 - 1) * radius);
-      this.positions.push((Math.random() * 2 - 1) * radius);
-
-      color.setHSL(i / particleCount, 1.0, 0.5);
-      this.colors.push(color.r, color.g, color.b);
-    }
-
-    this.flock = new Flock(this.particles);
+    this.particles = new Array(particleCount);
+    this.positions = new Array(particleCount * 3);
+    this.colors = new Array(particleCount * 3);
   }
 
   componentDidMount () {
-    this.setState({ ready: true });
-  }
+    const { particleCount } = this.props;
 
-  componentWillReceiveProps () {
-    systemPosition = this.props.position;
-    if (this.state.ready) {
-      this.flock.run();
+    for (let i = 0; i < particleCount; ++i) {
+      //const pos = new THREE.Vector3(Math.random() * 10, Math.random() * 10, Math.random() * 10);
+      const pos = new THREE.Vector3();
+      const vel =  new THREE.Vector3(
+        (Math.random() * 2 - 1)*.05,
+        (Math.random() * 2 - 1)*.05,
+        .93 + Math.random()*.02
+      );
+      const color = new THREE.Color().setHSL(i / particleCount, Math.random(), Math.random());
+
+      this.particles[i] = new Particle(pos, vel, color);
     }
   }
 
-  componentWillUpdate () {
-    if (this.state.ready) {
-      this.flock.update();
+  componentWillReceiveProps (newProps) {
+    const { particleCount } = this.props;
 
-      for (let i = 0; i < this.particles.length; ++i) {
-        let positionIndex = i * 3;
-        const particle = this.particles[i];
-        this.positions[positionIndex] = particle.position.x;
-        this.positions[positionIndex + 1] = particle.position.y;
-        this.positions[positionIndex + 2] = particle.position.z;
+    const ratio = window.innerWidth / window.innerHeight;
+    let p, bp;
+
+    for (let i = 0; i < particleCount; i+=2 ) {
+      const particle = this.particles[i];
+      const nextParticle = this.particles[i + 1];
+
+      const { position, velocity } = particle;
+      const nextPosition = nextParticle.position,
+        nextVelocity = nextParticle.velocity;
+
+      bp = i*3;
+
+      position.x = nextPosition.x;
+      position.y = nextPosition.y;
+
+      velocity.x *= velocity.z;
+      velocity.y *= velocity.z;
+
+      p = nextPosition.x;
+      p += velocity.x;
+
+      if (p < -ratio) {
+        p = -ratio;
+        velocity.x = Math.abs(velocity.x);
       }
+      else if (p > ratio) {
+        p = ratio;
+        velocity.x = -Math.abs(velocity.x);
+      }
+      nextPosition.x = p;
+
+      p = nextPosition.y;
+      p += velocity.y;
+
+      if (p < -1) {
+        p = -1;
+        velocity.y = Math.abs(velocity.y);
+      }
+      else if (p > 1) {
+        p = 1;
+        velocity.y = -Math.abs(velocity.y);
+      }
+      nextPosition.y = p;
+
+      /*
+      var dx = touchX - vertices[bp],
+          dy = touchY - vertices[bp+1],
+          d = Math.sqrt(dx * dx + dy * dy);
+          if ( d < 2 )
+          {
+            if ( d < .03 )
+            {
+              vertices[bp+3] = (Math.random() * 2 - 1)*ratio;
+              vertices[bp+4] = Math.random() * 2 - 1;
+              velocities[bp] = 0;
+              velocities[bp+1] = 0;
+            } else {
+              dx /= d;
+              dy /= d;
+              d = ( 2 - d ) / 2;
+              d *= d;
+              velocities[bp] += dx * d * .01;
+              velocities[bp+1] += dy * d * .01;
+            }
+          }
+      */
+    }
+  }
+
+  componentWillUpdate (newProps) {
+    const { particleCount } = this.props;
+
+    for (let i = 0; i < particleCount; ++i) {
+      const particle = this.particles[i];
+      const positionIndex = i * 3;
+      const { x, y, z } = particle.position;
+      const { r, g, b } = particle.color;
+
+      this.positions[positionIndex] = x;
+      this.positions[positionIndex + 1] = y;
+      this.positions[positionIndex + 2] = z;
+
+      this.colors[positionIndex] = r;
+      this.colors[positionIndex + 1] = g;
+      this.colors[positionIndex + 2] = b;
     }
   }
 
@@ -248,7 +174,7 @@ class BoidSystem extends React.Component {
   }
 };
 
-BoidSystem.propTypes = {
+ParticleSystem.propTypes = {
   particleCount: PropTypes.number,
   radius: PropTypes.number,
   particleMaterial: PropTypes.element,
@@ -256,7 +182,7 @@ BoidSystem.propTypes = {
   rotation: PropTypes.instanceOf(THREE.Euler)
 };
 
-BoidSystem.defaultProps = {
+ParticleSystem.defaultProps = {
   particleCount: 500,
   radius: 50,
   particleMaterial: (<materialResource resourceId="particleMaterial" />),
@@ -264,4 +190,4 @@ BoidSystem.defaultProps = {
   rotation: new THREE.Euler()
 };
 
-export default BoidSystem;
+export default ParticleSystem;

@@ -13,7 +13,9 @@ import Camera from './Camera';
 
 import Palette from './Palette';
 
-import BoidSystem from './BoidSystem';
+import ParticleSystem from './ParticleSystem';
+
+import { createPerspectiveMatrix } from './utility/MatrixUtility';
 
 class Flotus extends React.Component {
   getMeshStates () {
@@ -28,13 +30,26 @@ class Flotus extends React.Component {
   constructor (props, context) {
     super(props, context);
 
+    const {
+      width,
+      height
+    } = props;
+
     this.fog = new THREE.Fog(Palette.background, 10, 40);
+    this.fov = 30.0;
+    this.aspectRatio = width / height;
+    this.near = 1.0;
+    this.far = 10000.0;
+
+    this.perspectiveMatrix = createPerspectiveMatrix(this.near, this.far, this.fov, this.aspectRatio);
+
+    console.log(this.perspectiveMatrix);
     this.cameraName = "camera";
 
     this.lightPosition = new THREE.Vector3(20, 20, 20);
     this.lightTarget = new THREE.Vector3(0, 0, 0);
 
-    const cameraPosition = new THREE.Vector3(0, 2, 1);
+    const cameraPosition = new THREE.Vector3(0, 2, -5);
     const cameraRotation = new THREE.Euler();
 
     this.state = {
@@ -243,7 +258,10 @@ class Flotus extends React.Component {
 
             <Camera
               cameraName={this.cameraName}
-              aspect={width / height}
+              fov={this.fov}
+              near={this.near}
+              far={this.far}
+              aspect={this.aspectRatio}
               position={cameraPosition}
               rotation={cameraRotation}
               setRef={this.setCameraRef.bind(this)} />
@@ -273,10 +291,8 @@ class Flotus extends React.Component {
                 resourceId="greyLambertMaterial" />
             </mesh>
 
-            <BoidSystem
-              particleCount={100}
-              position={boidSystem.position}
-              rotation={boidSystem.rotation} />
+            <ParticleSystem
+              particleCount={40000} />
           </scene>
         </React3>
       </div>
