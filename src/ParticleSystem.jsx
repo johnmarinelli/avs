@@ -43,22 +43,23 @@ class ParticleSystem extends React.Component {
     const { particleCount, radius } = props;
 
     this.particles = new Array(particleCount);
-    this.positions = new Array(particleCount * 3);
-    this.colors = new Array(particleCount * 3);
+    this.positions = new Array(particleCount * 3).fill(0.0);
+    this.colors = new Array(particleCount * 3).fill(0.0);
+    this.positionBuffer = new THREE.Float32BufferAttribute(this.positions.slice(), 3);
+    this.positionBuffer.dynamic = true;
   }
 
   componentDidMount () {
     const { particleCount } = this.props;
 
     for (let i = 0; i < particleCount; ++i) {
-      //const pos = new THREE.Vector3(Math.random() * 10, Math.random() * 10, Math.random() * 10);
       const pos = new THREE.Vector3();
       const vel =  new THREE.Vector3(
         (Math.random() * 2 - 1)*.05,
         (Math.random() * 2 - 1)*.05,
-        .93 + Math.random()*.02
+        .73 + Math.random()*.02
       );
-      const color = new THREE.Color().setHSL(i / particleCount, Math.random(), Math.random());
+      const color = new THREE.Color().setHSL(i / particleCount, Math.random() * 0.5, Math.random());
 
       this.particles[i] = new Particle(pos, vel, color);
     }
@@ -66,6 +67,7 @@ class ParticleSystem extends React.Component {
 
   componentWillReceiveProps (newProps) {
     const { particleCount } = this.props;
+    const systemPosition = this.props.position;
 
     const ratio = window.innerWidth / window.innerHeight;
     let p, bp;
@@ -112,29 +114,32 @@ class ParticleSystem extends React.Component {
       }
       nextPosition.y = p;
 
+      let dx = systemPosition.x - position.x,
+        dy = systemPosition.y - position.y,
+        d = Math.sqrt(dx * dx + dy * dy);
+
       /*
-      var dx = touchX - vertices[bp],
-          dy = touchY - vertices[bp+1],
-          d = Math.sqrt(dx * dx + dy * dy);
-          if ( d < 2 )
-          {
-            if ( d < .03 )
-            {
-              vertices[bp+3] = (Math.random() * 2 - 1)*ratio;
-              vertices[bp+4] = Math.random() * 2 - 1;
-              velocities[bp] = 0;
-              velocities[bp+1] = 0;
-            } else {
-              dx /= d;
-              dy /= d;
-              d = ( 2 - d ) / 2;
-              d *= d;
-              velocities[bp] += dx * d * .01;
-              velocities[bp+1] += dy * d * .01;
-            }
-          }
-      */
+       * set d < 0.5, d < 0.015 for a cool falling sand effect
+       * if using mouse input, creates a repeller effect
+       */
+      if (d < 2.0) {
+        if (d < 0.03) {
+          nextPosition.x = (Math.random() * 2 - 1) * ratio;
+          nextPosition.y = Math.random() * 2 - 1;
+          velocity.x = 0.0;
+          velocity.y = 0.0;
+        }
+        else {
+          dx /= d;
+          dy /= d;
+          d = (2 - d) / 2;
+          d *= d;
+          velocity.x += dx * d * 0.01;
+          velocity.y += dy * d * 0.01;
+        }
+      }
     }
+
   }
 
   componentWillUpdate (newProps) {
@@ -154,6 +159,13 @@ class ParticleSystem extends React.Component {
       this.colors[positionIndex + 1] = g;
       this.colors[positionIndex + 2] = b;
     }
+
+    this.positionBuffer.set(this.positions.slice());
+
+    if (this.bufferGeometry) {
+      this.bufferGeometry.attributes.position.needsUpdate = true;
+    }
+
   }
 
   render () {
@@ -165,7 +177,8 @@ class ParticleSystem extends React.Component {
         rotation={rotation}>
         <bufferGeometry
           index={null}
-          position={new THREE.Float32BufferAttribute(this.positions.slice(), 3)}
+          ref={(g) => this.bufferGeometry = g}
+          position={this.positionBuffer}
           color={new THREE.Float32BufferAttribute(this.colors.slice(), 3)} />
         <materialResource
           resourceId="particleMaterial" />

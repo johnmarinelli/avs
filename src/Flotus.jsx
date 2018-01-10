@@ -19,11 +19,10 @@ import { createPerspectiveMatrix } from './utility/MatrixUtility';
 
 class Flotus extends React.Component {
   getMeshStates () {
-    const { boidSystem: { position, rotation } } = this.state;
+    const { light: { position } } = this.state;
 
     return {
-      position: position.clone(),
-      rotation: rotation.clone()
+      position: position.clone()
     };
   }
 
@@ -43,7 +42,6 @@ class Flotus extends React.Component {
 
     this.perspectiveMatrix = createPerspectiveMatrix(this.near, this.far, this.fov, this.aspectRatio);
 
-    console.log(this.perspectiveMatrix);
     this.cameraName = "camera";
 
     this.lightPosition = new THREE.Vector3(20, 20, 20);
@@ -56,9 +54,12 @@ class Flotus extends React.Component {
       cameraPosition,
       cameraRotation,
       mouseInput: null,
-      boidSystem: {
-        position: new THREE.Vector3(),
-        rotation: new THREE.Euler()
+      lastClicked: {
+        x: width / 2,
+        y: height / 2
+      },
+      light: {
+        position: new THREE.Vector3()
       },
       meshStates: null
     };
@@ -168,17 +169,12 @@ class Flotus extends React.Component {
   }
 
   updatePhysics () {
-    const t = Date.now() * 0.005;
-    const rz = 0.01 * t;
+    const { light } = this.state;
 
-    const { boidSystem } = this.state;
-    const { rotation } = boidSystem;
-
-    const newRotation = rotation.clone().set(rotation.x, rotation.y, rz);
-    let newPosition = boidSystem.position.clone();
+    let newPosition = light.position.clone();
 
     if (this.refs.mouseInput.isReady() && this.state.camera) {
-      const { boidSystem, camera } = this.state;
+      const { light, camera } = this.state;
       let { _mouse: { x, y } } = this.refs.mouseInput;
 
       x = (x / window.innerWidth) * 2 - 1;
@@ -191,10 +187,8 @@ class Flotus extends React.Component {
     }
 
     this.setState({
-      boidSystem: {
-        ...boidSystem,
+      light: {
         position: newPosition,
-        //rotation: newRotation
       }
     });
   }
@@ -229,7 +223,7 @@ class Flotus extends React.Component {
       cameraRotation,
       camera,
       mouseInput,
-      boidSystem
+      light
     } = this.state;
 
     return (
@@ -271,7 +265,7 @@ class Flotus extends React.Component {
               lookAt={this.lightTarget} />
 
             <pointLight
-              position={boidSystem.position} />
+              position={light.position} />
 
             <mesh
               position={new THREE.Vector3(1, 1, 1)}
