@@ -54,6 +54,7 @@ class Flotus extends React.Component {
       cameraPosition,
       cameraRotation,
       mouseInput: null,
+      isMouseDown: false,
       lastClicked: {
         x: width / 2,
         y: height / 2
@@ -205,6 +206,22 @@ class Flotus extends React.Component {
   onDragEnd = (newPos, i) => {
   };
 
+  onMouseDown = (event) => {
+    this.setState({
+      isMouseDown: true,
+      lastClicked: {
+        x: event.pageX,
+        y: event.pageY
+      }
+    });
+  };
+
+  onMouseUp = (event) => {
+    this.setState({
+      isMouseDown: false
+    });
+  };
+
   setCameraRef (camera) {
     this.refs.camera = camera;
   }
@@ -223,11 +240,16 @@ class Flotus extends React.Component {
       cameraRotation,
       camera,
       mouseInput,
-      light
+      light,
+      isMouseDown,
+      lastClicked
     } = this.state;
 
     return (
-      <div ref="container">
+      <div
+        onMouseDown={(e) => this.onMouseDown(e)}
+        onMouseUp={(e) => this.onMouseUp(e)}
+        ref="container">
         <React3
           antialias
           mainCamera={this.cameraName}
@@ -286,6 +308,8 @@ class Flotus extends React.Component {
             </mesh>
 
             <ParticleSystem
+              isMouseDown={isMouseDown}
+              lastClicked={lastClicked}
               particleCount={40000} />
           </scene>
         </React3>
